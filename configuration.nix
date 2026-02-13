@@ -114,9 +114,15 @@ in
   # Defend: This forces ACPI S5 (shutdown) after writing to swap, ensuring zero battery drain.
   # Best practice for Framework laptops to prevent "hot bag" issues.
   # HibernateDelaySec: After 1hr of suspend, auto-hibernate to save battery
+  # REMOVE ONCE FIXED - CHANGE BACK TO 1Hr - below is notes on what happened - not happening all the time.
+  # HibernateDelaySec=1h -   USB controller c1:00.4 (AMD 1022:151e) failed to resume:
+  # xhci_hcd 0000:c1:00.4: WARN: xHC restore state timeout
+  # xhci_hcd 0000:c1:00.4: HC died; cleaning up
+  # 6. This left a hub_event workqueue stuck, preventing hibernate
+  # 7. System entered suspend→fail→retry loop every 40 seconds for hours
   systemd.sleep.extraConfig = ''
     HibernateMode=shutdown
-    HibernateDelaySec=1h
+    HibernateDelaySec=90m
   '';
   
   # Lid close → suspend-then-hibernate (suspend now, hibernate after 1hr)
@@ -497,11 +503,12 @@ in
     
     # ENABLED: Multi-provider TUI for AI coding
     # nixpkgs version (1.1.53) is newer than flake (1.0.203) and has working plugins
-    opencode
-    # inputs.opencode.packages.${pkgs.system}.default  # flake version - broken anthropic-auth plugin
+    # opencode
+    inputs.opencode.packages.${pkgs.system}.default  # flake version - broken anthropic-auth plugin
     
     # ENABLED: Claude-focused TUI (numtide/nix-ai-tools)
-    inputs.nix-ai-tools.packages.${pkgs.system}.crush
+    # inputs.nix-ai-tools.packages.${pkgs.system}.crush
+    nur.repos.charmbracelet.crush
     
     # AVAILABLE (uncomment in flake.nix inputs first, then uncomment here):
     # inputs.claude-code.packages.${pkgs.system}.default  # Anthropic's official CLI
@@ -552,7 +559,12 @@ in
     #ruby-lsp
     
     # General
-    #tree-sitter  # Syntax parsing (LazyVim uses this heavily)
+    tree-sitter  # Syntax parsing (LazyVim uses this heavily)
+    gcc
+    go
+    # stylua
+    unzip
+    fd
   ];
   
   # Virtualization (Docker)

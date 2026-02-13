@@ -43,10 +43,13 @@
     # Using nixpkgs version instead - flake had broken anthropic-auth plugin
     # opencode.url = "github:aodhanhayter/opencode-flake";
     # opencode.inputs.nixpkgs.follows = "nixpkgs";
+    opencode.url = "github:anomalyco/opencode";
+    opencode.inputs.nixpkgs.follows = "nixpkgs";
 
     # Crush - Claude-focused TUI from numtide's nix-ai-tools
-    nix-ai-tools.url = "github:numtide/nix-ai-tools";
-    nix-ai-tools.inputs.nixpkgs.follows = "nixpkgs";
+    # nix-ai-tools.url = "github:numtide/nix-ai-tools";
+    # nix-ai-tools.inputs.nixpkgs.follows = "nixpkgs";
+    nur.url = "github:nix-community/NUR";
 
     # Claude Code - Anthropic's official CLI (uncomment to enable)
     # claude-code.url = "github:sadjow/claude-code-nix";
@@ -57,7 +60,7 @@
     # codex.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = { self, nixpkgs, nixos-hardware, noctalia, nix-ai-tools, bluetui, zen-browser, ... }@inputs: {
+  outputs = { self, nixpkgs, nixos-hardware, noctalia, opencode, nur, bluetui, zen-browser, ... }@inputs: {
     nixosConfigurations."achilles" = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       
@@ -90,6 +93,10 @@
         # dms.nixosModules.dank-material-shell
         # Caelestia - Hyprland-focused shell (Quickshell) - uncomment to enable
         # caelestia-shell.homeManagerModules.default
+
+        # === CRUSH ===
+        nur.modules.nixos.default
+        # nur.repos.charmbracelet.modules.crush
         
         # Main System Config
         ./configuration.nix

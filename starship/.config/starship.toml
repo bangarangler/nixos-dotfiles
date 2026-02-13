@@ -101,7 +101,7 @@ read_only_style = "red"
 # Git Branch
 # ------------------------------
 [git_branch]
-symbol = " "
+symbol = " "
 style = "purple"
 format = "[$symbol$branch(:$remote_branch)]($style) "
 # Truncate long branch names (0 = no truncation)
@@ -148,89 +148,89 @@ deleted = "✘"
 # All use Nerd Font symbols. Shown only when relevant files detected.
 
 [nodejs]
-symbol = " "
+symbol = " "
 style = "green"
 format = "[$symbol($version)]($style) "
 detect_files = ["package.json", ".node-version", ".nvmrc"]
 detect_folders = ["node_modules"]
 
 [python]
-symbol = " "
+symbol = " "
 style = "yellow"
 format = '[${symbol}${pyenv_prefix}(${version})(\\($virtualenv\\))]($style) '
 detect_files = ["requirements.txt", "pyproject.toml", "setup.py", "Pipfile", ".python-version"]
 detect_folders = [".venv", "venv", "__pycache__"]
 
 [golang]
-symbol = " "
+symbol = " "
 style = "cyan"
 format = "[$symbol($version)]($style) "
 detect_files = ["go.mod", "go.sum", "go.work", ".go-version"]
 detect_folders = []
 
 [rust]
-symbol = " "
+symbol = " "
 style = "orange"
 format = "[$symbol($version)]($style) "
 detect_files = ["Cargo.toml", "rust-toolchain.toml"]
 
 [zig]
-symbol = " "
+symbol = " "
 style = "yellow"
 format = "[$symbol($version)]($style) "
 detect_files = ["build.zig", "build.zig.zon"]
 
 [ruby]
-symbol = " "
+symbol = " "
 style = "red"
 format = "[$symbol($version)]($style) "
 detect_files = ["Gemfile", ".ruby-version", "Rakefile"]
 
 [lua]
-symbol = " "
+symbol = " "
 style = "blue"
 format = "[$symbol($version)]($style) "
 detect_files = [".lua-version", "lua", "init.lua"]
 detect_folders = ["lua"]
 
 [java]
-symbol = " "
+symbol = " "
 style = "red"
 format = "[$symbol($version)]($style) "
 detect_files = ["pom.xml", "build.gradle", "build.gradle.kts", ".java-version"]
 
 [kotlin]
-symbol = " "
+symbol = " "
 style = "purple"
 format = "[$symbol($version)]($style) "
 detect_files = ["build.gradle.kts", "*.kt"]
 
 [php]
-symbol = " "
+symbol = " "
 style = "purple"
 format = "[$symbol($version)]($style) "
 detect_files = ["composer.json", ".php-version"]
 
 [elixir]
-symbol = " "
+symbol = " "
 style = "purple"
 format = "[$symbol($version \\(OTP $otp_version\\))]($style) "
 detect_files = ["mix.exs"]
 
 [erlang]
-symbol = " "
+symbol = " "
 style = "red"
 format = "[$symbol($version)]($style) "
 detect_files = ["rebar.config", "erlang.mk"]
 
 [haskell]
-symbol = " "
+symbol = " "
 style = "purple"
 format = "[$symbol($version)]($style) "
 detect_files = ["stack.yaml", "cabal.project", "*.cabal"]
 
 [scala]
-symbol = " "
+symbol = " "
 style = "red"
 format = "[$symbol($version)]($style) "
 detect_files = ["build.sbt", ".scalaenv", ".sbtenv"]
@@ -248,25 +248,25 @@ format = "[$symbol($version)]($style) "
 detect_files = ["*.nim", "nim.cfg"]
 
 [ocaml]
-symbol = " "
+symbol = " "
 style = "yellow"
 format = "[$symbol($version)(\\($switch_indicator$switch_name\\))]($style) "
 detect_files = ["dune", "dune-project", "*.opam"]
 
 [perl]
-symbol = " "
+symbol = " "
 style = "blue"
 format = "[$symbol($version)]($style) "
 detect_files = ["Makefile.PL", "Build.PL", "cpanfile", ".perl-version"]
 
 [swift]
-symbol = " "
+symbol = " "
 style = "orange"
 format = "[$symbol($version)]($style) "
 detect_files = ["Package.swift"]
 
 [dart]
-symbol = " "
+symbol = " "
 style = "blue"
 format = "[$symbol($version)]($style) "
 detect_files = ["pubspec.yaml"]
@@ -287,9 +287,9 @@ detect_files = ["bun.lockb", "bunfig.toml"]
 # Nix Shell
 # ------------------------------
 [nix_shell]
-symbol = " "
-style = "blue bold"
-format = '[$symbol$state(\\($name\\))]($style) '
+symbol = " "
+style = "cyan bold"
+format = '[$symbol$state( \($name\))]($style) '
 impure_msg = ""
 pure_msg = "pure"
 unknown_msg = ""
@@ -298,7 +298,7 @@ unknown_msg = ""
 # Infrastructure & Cloud
 # ------------------------------
 [docker_context]
-symbol = " "
+symbol = " "
 style = "blue"
 format = "[$symbol$context]($style) "
 only_with_files = true
@@ -323,14 +323,14 @@ format = "[$symbol$workspace]($style) "
 detect_files = ["*.tf", "*.tfvars"]
 
 [aws]
-symbol = " "
+symbol = " "
 style = "yellow"
 format = '[$symbol($profile)(\\($region\\))]($style) '
 # Disabled by default - enable if you use AWS
 disabled = true
 
 [gcloud]
-symbol = " "
+symbol = " "
 style = "blue"
 format = '[$symbol$account(@$domain)(\\($region\\))]($style) '
 # Disabled by default - enable if you use GCP
