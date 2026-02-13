@@ -1,0 +1,16 @@
+[user]
+	name = Jon
+	email = bangarangler@gmail.com
+
+[core]
+	editor = nvim
+	autocrlf = input
+
+[init]
+	defaultBranch = main
+
+[push]
+	default = simple
+
+[pull]
+	rebase = false

@@ -1,0 +1,85 @@
+# noxtheme: Ariake Dark - btop++ theme
+
+# Main background
+theme[main_bg]="#1F212A"
+
+# Main text color
+theme[main_fg]="#B9BED5"
+
+# Title color for boxes
+theme[title]="#F5FAFF"
+
+# Highlight color for selected items
+theme[hi_fg]="#A571F4"
+
+# Color of inactive/disabled text
+theme[inactive_fg]="#555C77"
+
+# Color of text appearing on top of graphs
+theme[graph_text]="#B9BED5"
+
+# Background color of the percentage meters
+theme[meter_bg]="#313343"
+
+# Misc colors for processes box
+theme[proc_misc]="#93DDFB"
+
+# Cpu box outline color
+theme[cpu_box]="#7E7EDD"
+
+# Memory/disks box outline color
+theme[mem_box]="#A571F4"
+
+# Net up/down box outline color
+theme[net_box]="#9AEFEA"
+
+# Processes box outline color
+theme[proc_box]="#85B1E0"
+
+# Box divider line and target box for moving box selection
+theme[div_line]="#555C77"
+
+# Temperature graph colors
+theme[temp_start]="#9AEFEA"
+theme[temp_mid]="#DDA2F6"
+theme[temp_end]="#E05252"
+
+# CPU graph colors
+theme[cpu_start]="#9AEFEA"
+theme[cpu_mid]="#A571F4"
+theme[cpu_end]="#DDA2F6"
+
+# Mem/Disk free meter
+theme[free_start]="#85B1E0"
+theme[free_mid]="#7E7EDD"
+theme[free_end]="#A571F4"
+
+# Mem/Disk cached meter
+theme[cached_start]="#93DDFB"
+theme[cached_mid]="#9AEFEA"
+theme[cached_end]="#A571F4"
+
+# Mem/Disk available meter
+theme[available_start]="#9AEFEA"
+theme[available_mid]="#93DDFB"
+theme[available_end]="#85B1E0"
+
+# Mem/Disk used meter
+theme[used_start]="#A571F4"
+theme[used_mid]="#DDA2F6"
+theme[used_end]="#E05252"
+
+# Download graph colors
+theme[download_start]="#9AEFEA"
+theme[download_mid]="#93DDFB"
+theme[download_end]="#85B1E0"
+
+# Upload graph colors
+theme[upload_start]="#A571F4"
+theme[upload_mid]="#DDA2F6"
+theme[upload_end]="#E05252"
+
+# Process box color gradient for threads, mem and cpu usage
+theme[process_start]="#85B1E0"
+theme[process_mid]="#A571F4"
+theme[process_end]="#DDA2F6"

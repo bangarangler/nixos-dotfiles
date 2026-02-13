@@ -1,0 +1,68 @@
+# Florida-man (GTA VI) for btop - Catppuccin Frappe base
+
+# Main background
+theme[main_bg]="#303446"
+
+# Main text color
+theme[main_fg]="#b5bfe2"
+
+# Title color for boxes
+theme[title]="#ca9ee6"
+
+# Highlight color for keyboard shortcuts
+theme[hi_fg]="#81c8be"
+
+# Background color of selected item in processes box
+theme[selected_bg]="#51576d"
+
+# Foreground color of selected item in processes box
+theme[selected_fg]="#b5bfe2"
+
+# Color of inactive/disabled text
+theme[inactive_fg]="#51576d"
+
+# Misc colors for processes box
+theme[proc_misc]="#ca9ee6"
+
+# Box outline and divider line color
+theme[cpu_box]="#a6d189"
+theme[mem_box]="#a6d189"
+theme[net_box]="#a6d189"
+theme[proc_box]="#a6d189"
+theme[div_line]="#51576d"
+
+# Temperature graph gradients
+theme[temp_start]="#81c8be"
+theme[temp_mid]="#8caaee"
+theme[temp_end]="#a6d189"
+
+# CPU graph gradients
+theme[cpu_start]="#81c8be"
+theme[cpu_mid]="#8caaee"
+theme[cpu_end]="#a6d189"
+
+# Memory graph gradients
+theme[free_start]="#8caaee"
+theme[free_mid]="#e5c890"
+theme[free_end]="#e5c890"
+
+theme[cached_start]="#e5c890"
+theme[cached_mid]="#e5c890"
+theme[cached_end]="#e5c890"
+
+theme[available_start]="#81c8be"
+theme[available_mid]="#81c8be"
+theme[available_end]="#81c8be"
+
+theme[used_start]="#a6d189"
+theme[used_mid]="#a6d189"
+theme[used_end]="#a6d189"
+
+# Network graph gradients
+theme[download_start]="#e5c890"
+theme[download_mid]="#81c8be"
+theme[download_end]="#8caaee"
+
+theme[upload_start]="#e5c890"
+theme[upload_mid]="#81c8be"
+theme[upload_end]="#8caaee"

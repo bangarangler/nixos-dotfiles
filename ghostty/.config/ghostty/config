@@ -1,0 +1,42 @@
+# ==========================================
+# Ghostty Configuration (NixOS/Wayland)
+# ==========================================
+
+# Theme loaded from noxtheme system
+# config-file = ~/.config/noxtheme/current/theme/ghostty.conf
+
+background-opacity = 0.8
+background-opacity-cells = true
+
+# Font (Installed via Nix: nerd-fonts.inconsolata-lgc)
+font-family = "Inconsolata LGC Nerd Font Mono"                    
+font-family-bold = "Inconsolata LGC Nerd Font Mono Bold"              
+font-family-italic = "Inconsolata LGC Nerd Font Mono Italic"           
+font-family-bold-italic = "Inconsolata LGC Nerd Font Mono Bold Italic"      
+font-style = "Inconsolata LGC Nerd Font Mono"                  
+font-style-bold = "Inconsolata LGC Nerd Font Mono Bold"            
+font-style-italic = "Inconsolata LGC Nerd Font Mono Italic"         
+font-style-bold-italic = "Inconsolata LGC Nerd Font Mono Bold Italic"   
+font-size = 14             
+font-style = italic
+
+# Wayland-specific (no macOS titlebar option needed)
+window-decoration = false
+
+# Cursor
+cursor-style = block
+cursor-style-blink = true
+
+# Scrollback
+scrollback-limit = 10000
+
+# Bell
+# audible-bell = false
+# visual-bell = true
+
+# Selection
+copy-on-select = true
+
+# Links
+# link-on-hover = true
+theme = noctalia

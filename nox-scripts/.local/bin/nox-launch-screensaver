@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+# nox-launch-screensaver - Launch fullscreen screensaver terminals on all monitors
+# Compositor-aware - detects Niri or Hyprland and launches appropriately
+# Called by swayidle after idle timeout
+
+set -euo pipefail
+
+TOGGLE_FILE="${XDG_RUNTIME_DIR:-/tmp}/nox-screensaver-disabled"
+LOCK_CHECK_CMDS=("swaylock" "hyprlock" "gtklock")
+GHOSTTY_CONFIG="${HOME}/.config/ghostty/screensaver"
+
+# Check if screensaver is disabled (unless force mode)
+if [[ "${1:-}" != "force" ]] && [[ -f "$TOGGLE_FILE" ]]; then
+    exit 0
+fi
+
+# Check if screen is already locked - don't launch screensaver over lock screen
+for cmd in "${LOCK_CHECK_CMDS[@]}"; do
+    if pgrep -x "$cmd" &>/dev/null; then
+        exit 0
+    fi
+done
+
+# Check if screensaver is already running
+if pgrep -f "nox-cmd-screensaver" &>/dev/null; then
+    exit 0
+fi
+
+# Detect compositor
+detect_compositor() {
+    if [[ -n "${NIRI_SOCKET:-}" ]] || pgrep -x niri &>/dev/null; then
+        echo "niri"
+    elif [[ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]] || pgrep -x Hyprland &>/dev/null; then
+        echo "hyprland"
+    else
+        echo "unknown"
+    fi
+}
+
+# Get monitor count based on compositor
+get_monitors() {
+    local compositor="$1"
+    local count
+    case "$compositor" in
+        niri)
+            # niri msg outputs plain text - count "Output" lines
+            count=$(niri msg outputs 2>/dev/null | grep -c '^Output' || true)
+            echo "${count:-1}"
+            ;;
+        hyprland)
+            count=$(hyprctl monitors -j 2>/dev/null | grep -c '"name":' || true)
+            echo "${count:-1}"
+            ;;
+        *)
+            echo 1
+            ;;
+    esac
+}
+
+# Launch ghostty with screensaver config
+launch_screensaver_terminal() {
+    local config_args=""
+    
+    # Use screensaver config if it exists
+    if [[ -f "$GHOSTTY_CONFIG" ]]; then
+        config_args="--config-file=$GHOSTTY_CONFIG"
+    fi
+    
+    # Launch ghostty in fullscreen running the screensaver command
+    # The -e flag runs the command, terminal closes when command exits
+    ghostty $config_args \
+        --initial-command="nox-cmd-screensaver" \
+        --fullscreen=true \
+        --gtk-single-instance=false \
+        2>/dev/null &
+}
+
+# Main
+compositor=$(detect_compositor)
+monitor_count=$(get_monitors "$compositor")
+
+# Launch a screensaver terminal for each monitor
+# Note: On single-monitor setups this launches one instance
+# On multi-monitor, each instance will fullscreen on an available monitor
+for ((i = 0; i < monitor_count; i++)); do
+    launch_screensaver_terminal
+    # Small delay to let compositor assign to different monitors
+    sleep 0.1
+done
+
+# The screensaver will exit on:
+# - Any keypress (ghostty loses focus or receives input)
+# - Window close
+# - Lock screen taking over

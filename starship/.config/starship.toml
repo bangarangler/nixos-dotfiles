@@ -1,0 +1,474 @@
+# ==========================================
+# Starship Prompt Configuration
+# ==========================================
+# Cross-shell prompt (bash, zsh, nu, fish, etc.)
+# Docs: https://starship.rs/config/
+#
+# Theme colors are loaded from noxtheme - this file defines structure.
+# Run: noxtheme set <theme> to apply colors.
+#
+# To customize:
+#   - Edit format to change module order
+#   - Disable modules by setting disabled = true
+#   - Adjust symbols to your preference (requires Nerd Font)
+
+# Use the current theme's palette (set by noxtheme)
+# Falls back to dracula if no palette is set
+palette = "dracula"
+
+# ------------------------------
+# Prompt Format (Single Line)
+# ------------------------------
+# Modules appear in this order. Remove or reorder as desired.
+format = """
+$directory\
+$git_branch\
+$git_status\
+$nodejs\
+$python\
+$golang\
+$rust\
+$zig\
+$ruby\
+$lua\
+$java\
+$kotlin\
+$php\
+$elixir\
+$erlang\
+$haskell\
+$scala\
+$clojure\
+$nim\
+$ocaml\
+$perl\
+$swift\
+$dart\
+$deno\
+$bun\
+$nix_shell\
+$docker_context\
+$kubernetes\
+$terraform\
+$aws\
+$gcloud\
+$azure\
+$package\
+$cmd_duration\
+$character"""
+
+# Don't add blank line before prompt
+add_newline = false
+
+# ------------------------------
+# Character (Prompt Symbol)
+# ------------------------------
+[character]
+success_symbol = "[❯](green)"
+error_symbol = "[❯](red)"
+# Vim mode indicators (shown when using vi mode in bash/zsh)
+vimcmd_symbol = "[❮](green)"
+vimcmd_replace_one_symbol = "[❮](purple)"
+vimcmd_replace_symbol = "[❮](purple)"
+vimcmd_visual_symbol = "[❮](yellow)"
+
+# ------------------------------
+# Directory
+# ------------------------------
+[directory]
+style = "cyan bold"
+format = "[$path]($style)[$read_only]($read_only_style) "
+# Number of parent directories to show (default 3)
+# Set to 0 for full path, or increase for more context
+truncation_length = 3
+# Truncate to repo root when in a git repo
+truncate_to_repo = true
+# Symbol shown when directory is read-only
+read_only = " 󰌾"
+read_only_style = "red"
+
+# Substitute long paths with shorter names (optional)
+# Uncomment and customize as needed:
+# [directory.substitutions]
+# "Documents" = "󰈙 "
+# "Downloads" = " "
+# "Music" = "󰝚 "
+# "Pictures" = " "
+# "~/projects" = " "
+# "~/work" = "󰒋 "
+
+# ------------------------------
+# Git Branch
+# ------------------------------
+[git_branch]
+symbol = " "
+style = "purple"
+format = "[$symbol$branch(:$remote_branch)]($style) "
+# Truncate long branch names (0 = no truncation)
+truncation_length = 20
+truncation_symbol = "…"
+
+# ------------------------------
+# Git Status
+# ------------------------------
+# Shows dirty indicator by default
+# Uncomment detailed options below for more info
+[git_status]
+style = "red"
+format = '([$all_status$ahead_behind]($style) )'
+# Simple dirty indicator
+conflicted = "="
+ahead = "⇡"
+behind = "⇣"
+diverged = "⇕"
+up_to_date = ""
+untracked = "?"
+stashed = "≡"
+modified = "!"
+staged = "+"
+renamed = "»"
+deleted = "✘"
+
+# DETAILED GIT STATUS (uncomment for counts)
+# Shows exact counts: ⇡2 ⇣1 +3 !5 ?2
+# conflicted = "=${count}"
+# ahead = "⇡${count}"
+# behind = "⇣${count}"
+# diverged = "⇕⇡${ahead_count}⇣${behind_count}"
+# untracked = "?${count}"
+# stashed = "≡${count}"
+# modified = "!${count}"
+# staged = "+${count}"
+# renamed = "»${count}"
+# deleted = "✘${count}"
+
+# ------------------------------
+# Languages & Tools
+# ------------------------------
+# All use Nerd Font symbols. Shown only when relevant files detected.
+
+[nodejs]
+symbol = " "
+style = "green"
+format = "[$symbol($version)]($style) "
+detect_files = ["package.json", ".node-version", ".nvmrc"]
+detect_folders = ["node_modules"]
+
+[python]
+symbol = " "
+style = "yellow"
+format = '[${symbol}${pyenv_prefix}(${version})(\\($virtualenv\\))]($style) '
+detect_files = ["requirements.txt", "pyproject.toml", "setup.py", "Pipfile", ".python-version"]
+detect_folders = [".venv", "venv", "__pycache__"]
+
+[golang]
+symbol = " "
+style = "cyan"
+format = "[$symbol($version)]($style) "
+detect_files = ["go.mod", "go.sum", "go.work", ".go-version"]
+detect_folders = []
+
+[rust]
+symbol = " "
+style = "orange"
+format = "[$symbol($version)]($style) "
+detect_files = ["Cargo.toml", "rust-toolchain.toml"]
+
+[zig]
+symbol = " "
+style = "yellow"
+format = "[$symbol($version)]($style) "
+detect_files = ["build.zig", "build.zig.zon"]
+
+[ruby]
+symbol = " "
+style = "red"
+format = "[$symbol($version)]($style) "
+detect_files = ["Gemfile", ".ruby-version", "Rakefile"]
+
+[lua]
+symbol = " "
+style = "blue"
+format = "[$symbol($version)]($style) "
+detect_files = [".lua-version", "lua", "init.lua"]
+detect_folders = ["lua"]
+
+[java]
+symbol = " "
+style = "red"
+format = "[$symbol($version)]($style) "
+detect_files = ["pom.xml", "build.gradle", "build.gradle.kts", ".java-version"]
+
+[kotlin]
+symbol = " "
+style = "purple"
+format = "[$symbol($version)]($style) "
+detect_files = ["build.gradle.kts", "*.kt"]
+
+[php]
+symbol = " "
+style = "purple"
+format = "[$symbol($version)]($style) "
+detect_files = ["composer.json", ".php-version"]
+
+[elixir]
+symbol = " "
+style = "purple"
+format = "[$symbol($version \\(OTP $otp_version\\))]($style) "
+detect_files = ["mix.exs"]
+
+[erlang]
+symbol = " "
+style = "red"
+format = "[$symbol($version)]($style) "
+detect_files = ["rebar.config", "erlang.mk"]
+
+[haskell]
+symbol = " "
+style = "purple"
+format = "[$symbol($version)]($style) "
+detect_files = ["stack.yaml", "cabal.project", "*.cabal"]
+
+[scala]
+symbol = " "
+style = "red"
+format = "[$symbol($version)]($style) "
+detect_files = ["build.sbt", ".scalaenv", ".sbtenv"]
+
+# [clojure]
+# symbol = " "
+# style = "green"
+# format = "[$symbol($version)]($style) "
+# detect_files = ["project.clj", "build.boot", "deps.edn"]
+
+[nim]
+symbol = "󰆥 "
+style = "yellow"
+format = "[$symbol($version)]($style) "
+detect_files = ["*.nim", "nim.cfg"]
+
+[ocaml]
+symbol = " "
+style = "yellow"
+format = "[$symbol($version)(\\($switch_indicator$switch_name\\))]($style) "
+detect_files = ["dune", "dune-project", "*.opam"]
+
+[perl]
+symbol = " "
+style = "blue"
+format = "[$symbol($version)]($style) "
+detect_files = ["Makefile.PL", "Build.PL", "cpanfile", ".perl-version"]
+
+[swift]
+symbol = " "
+style = "orange"
+format = "[$symbol($version)]($style) "
+detect_files = ["Package.swift"]
+
+[dart]
+symbol = " "
+style = "blue"
+format = "[$symbol($version)]($style) "
+detect_files = ["pubspec.yaml"]
+
+[deno]
+symbol = "🦕 "
+style = "green"
+format = "[$symbol($version)]($style) "
+detect_files = ["deno.json", "deno.jsonc", "deno.lock"]
+
+[bun]
+symbol = "🍞 "
+style = "yellow"
+format = "[$symbol($version)]($style) "
+detect_files = ["bun.lockb", "bunfig.toml"]
+
+# ------------------------------
+# Nix Shell
+# ------------------------------
+[nix_shell]
+symbol = " "
+style = "blue bold"
+format = '[$symbol$state(\\($name\\))]($style) '
+impure_msg = ""
+pure_msg = "pure"
+unknown_msg = ""
+
+# ------------------------------
+# Infrastructure & Cloud
+# ------------------------------
+[docker_context]
+symbol = " "
+style = "blue"
+format = "[$symbol$context]($style) "
+only_with_files = true
+detect_files = ["docker-compose.yml", "docker-compose.yaml", "Dockerfile"]
+
+[kubernetes]
+symbol = "󱃾 "
+style = "blue"
+format = '[$symbol$context(\\($namespace\\))]($style) '
+disabled = false
+detect_files = ["k8s", "kubernetes", "kustomization.yaml"]
+# Only show when kubectl context is set
+# Uncomment to always show:
+# detect_extensions = []
+# detect_files = []
+# detect_folders = []
+
+[terraform]
+symbol = "󱁢 "
+style = "purple"
+format = "[$symbol$workspace]($style) "
+detect_files = ["*.tf", "*.tfvars"]
+
+[aws]
+symbol = " "
+style = "yellow"
+format = '[$symbol($profile)(\\($region\\))]($style) '
+# Disabled by default - enable if you use AWS
+disabled = true
+
+[gcloud]
+symbol = " "
+style = "blue"
+format = '[$symbol$account(@$domain)(\\($region\\))]($style) '
+# Disabled by default - enable if you use GCP
+disabled = true
+
+[azure]
+symbol = "󰠅 "
+style = "blue"
+format = "[$symbol($subscription)]($style) "
+# Disabled by default - enable if you use Azure
+disabled = true
+
+# ------------------------------
+# Package Version
+# ------------------------------
+[package]
+symbol = "󰏗 "
+style = "orange"
+format = "[$symbol$version]($style) "
+display_private = false
+# Shown only in directories with package.json, Cargo.toml, etc.
+
+# ------------------------------
+# Command Duration
+# ------------------------------
+# Shows how long the last command took
+[cmd_duration]
+min_time = 2_000  # Show if command took > 2 seconds
+style = "yellow"
+format = "[$duration]($style) "
+show_milliseconds = false
+# Uncomment to show notifications for long commands:
+# show_notifications = true
+# min_time_to_notify = 45_000
+
+# ------------------------------
+# Optional Modules (Disabled by Default)
+# ------------------------------
+# Uncomment to enable
+
+# Battery indicator
+# [battery]
+# disabled = false
+# full_symbol = "󰁹 "
+# charging_symbol = "󰂄 "
+# discharging_symbol = "󰂃 "
+# format = "[$symbol$percentage]($style) "
+# [[battery.display]]
+# threshold = 30
+# style = "red bold"
+
+# Time
+# [time]
+# disabled = false
+# format = '[$time]($style) '
+# style = "dimmed white"
+# time_format = "%H:%M"
+
+# Hostname (useful for SSH)
+# [hostname]
+# disabled = false
+# ssh_only = true
+# format = "[$ssh_symbol$hostname]($style) "
+# style = "green dimmed"
+
+# Username
+# [username]
+# disabled = false
+# show_always = false
+# format = "[$user]($style)@"
+# style_user = "green"
+# style_root = "red bold"
+
+# Memory usage
+# [memory_usage]
+# disabled = false
+# threshold = 75
+# format = "[$symbol${ram}]($style) "
+# symbol = "󰍛 "
+# style = "dimmed white"
+
+# ------------------------------
+# Color Palettes
+# ------------------------------
+# noxtheme generates these, but defaults are included for standalone use
+
+[palettes.dracula]
+background = "#282a36"
+current_line = "#44475a"
+foreground = "#f8f8f2"
+comment = "#6272a4"
+cyan = "#8be9fd"
+green = "#50fa7b"
+orange = "#ffb86c"
+pink = "#ff79c6"
+purple = "#bd93f9"
+red = "#ff5555"
+yellow = "#f1fa8c"
+blue = "#6272a4"
+
+[palettes.catppuccin-mocha]
+background = "#1e1e2e"
+current_line = "#313244"
+foreground = "#cdd6f4"
+comment = "#6c7086"
+cyan = "#89dceb"
+green = "#a6e3a1"
+orange = "#fab387"
+pink = "#f5c2e7"
+purple = "#cba6f7"
+red = "#f38ba8"
+yellow = "#f9e2af"
+blue = "#89b4fa"
+
+[palettes.ariake-dark]
+background = "#2a2c37"
+current_line = "#3d3f4b"
+foreground = "#d4d4dc"
+comment = "#6c6f7d"
+cyan = "#78d1e1"
+green = "#a8cc8c"
+orange = "#dbab79"
+pink = "#d38faf"
+purple = "#a495c7"
+red = "#e88388"
+yellow = "#ebcb8b"
+blue = "#71bef2"
+
+[palettes.florida-man]
+background = "#1a1a2e"
+current_line = "#2a2a4e"
+foreground = "#e0e0e0"
+comment = "#6272a4"
+cyan = "#00d9ff"
+green = "#00ff9f"
+orange = "#ff9e00"
+pink = "#ff00ff"
+purple = "#bf00ff"
+red = "#ff3860"
+yellow = "#ffdd57"
+blue = "#3273dc"

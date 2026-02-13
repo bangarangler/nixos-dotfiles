@@ -1,0 +1,308 @@
+// ==========================================
+// Niri Configuration - Framework 13 AMD AI 300
+// ==========================================
+// Docs: https://github.com/YaLTeR/niri/wiki/Configuration
+
+// ------------------------------
+// Input
+// ------------------------------
+input {
+    keyboard {
+        xkb {
+            // US layout, Caps Lock as Escape (optional, remove if unwanted)
+            // options "caps:escape"
+        }
+        // Repeat rate (characters per second) and delay (ms)
+        repeat-delay 300
+        repeat-rate 50
+    }
+
+    touchpad {
+        tap
+        // natural-scroll
+        // Disable while typing
+        dwt
+        // Two-finger scroll
+        scroll-method "two-finger"
+        // Click method (clickfinger = 2-finger right click, 3-finger middle)
+        click-method "clickfinger"
+    }
+
+    // Mouse acceleration (flat = no acceleration)
+    mouse {
+        accel-profile "flat"
+    }
+
+    // Trackpoint (if using external keyboard with trackpoint)
+    // trackpoint {
+    //     accel-profile "flat"
+    // }
+}
+
+// ------------------------------
+// Output (Display)
+// ------------------------------
+output "eDP-1" {
+    // Framework 13 2880x1920 @ 120Hz
+    // 1.5x scale gives effective 1920x1280 (good balance)
+    scale 1.75
+    
+    // Variable refresh rate (VRR) for smoother scrolling
+    // Requires kernel 6.12+ and Niri 25.x+
+    // variable-refresh-rate
+}
+
+// ------------------------------
+// Layout
+// ------------------------------
+layout {
+    // Gaps between windows (in logical pixels)
+    gaps 8
+
+    // Center a single column
+    center-focused-column "never"
+
+    // Default column width
+    default-column-width { proportion 0.5; }
+
+    // Focus ring (highlight around focused window)
+    focus-ring {
+        // off
+        width 2
+        // Dracula purple
+        active-color "#bd93f9"
+        inactive-color "#44475a"
+    }
+
+    // Border (around all windows)
+    border {
+        off
+        // width 1
+        // active-color "#ff79c6"
+        // inactive-color "#282a36"
+    }
+
+    // Struts push windows away from screen edges
+    struts {
+        top -30
+    }
+}
+
+// ------------------------------
+// Cursor
+// ------------------------------
+cursor {
+    // Cursor theme (install via Nix or use default)
+    // xcursor-theme "Adwaita"
+    xcursor-size 24
+}
+
+//  ------------------------------
+// Environment (set before apps start)
+// ------------------------------
+environment {
+    // Qt Wayland
+    QT_QPA_PLATFORM "wayland"
+    QT_WAYLAND_DISABLE_WINDOWDECORATION "1"
+    
+    // GTK (usually auto-detects, but explicit is fine)
+    GDK_BACKEND "wayland,x11"
+    
+    // Firefox
+    MOZ_ENABLE_WAYLAND "1"
+    
+    // Electron apps
+    ELECTRON_OZONE_PLATFORM_HINT "wayland"
+    
+    // XDG
+    XDG_CURRENT_DESKTOP "niri"
+    XDG_SESSION_TYPE "wayland"
+}
+
+// ------------------------------
+// Startup
+// ------------------------------
+// Noctalia Shell (bar, launcher, notifications)
+spawn-at-startup "noctalia-shell"
+
+// D-Bus environment sync (critical for portals, screen sharing)
+spawn-at-startup "dbus-update-activation-environment" "--systemd" "WAYLAND_DISPLAY" "XDG_CURRENT_DESKTOP"
+
+// SwayOSD (on-screen display for volume/brightness)
+spawn-at-startup "swayosd-server"
+
+// Note: swayidle is started via systemd user service in configuration.nix
+
+// ------------------------------
+// Window Rules
+// ------------------------------
+window-rule {
+  draw-border-with-background false
+  geometry-corner-radius 8
+  clip-to-geometry true
+}
+window-rule {
+    // Picture-in-picture windows float and stay on top
+    match app-id="firefox" title="Picture-in-Picture"
+    open-floating true
+}
+
+window-rule {
+    // Steam windows
+    match app-id="steam"
+    // Steam sometimes needs this
+    open-floating true
+}
+
+// ------------------------------
+// Keybinds
+// ------------------------------
+binds {
+    // === Hotkey Overlay ===
+    Mod+Shift+Slash hotkey-overlay-title="Show All Keybindings" { show-hotkey-overlay; }
+    
+    // === Universal Copy/Paste (Mac-like) ===
+    Mod+C hotkey-overlay-title="Copy (Universal)" { spawn "wtype" "-M" "ctrl" "-k" "Insert" "-m" "ctrl"; }
+    Mod+V hotkey-overlay-title="Paste (Universal)" { spawn "wtype" "-M" "shift" "-k" "Insert" "-m" "shift"; }
+    Mod+X hotkey-overlay-title="Cut (Universal)" { spawn "wtype" "-M" "ctrl" "-k" "x" "-m" "ctrl"; }
+    
+    // === Clipboard History ===
+    Mod+Ctrl+V hotkey-overlay-title="Clipboard History" { spawn "bash" "-c" "cliphist list | fuzzel -d | cliphist decode | wl-copy"; }
+    
+    // === Session ===
+    Mod+Shift+E hotkey-overlay-title="Quit Niri" { quit; }
+    Mod+Shift+R hotkey-overlay-title="Reload Config" { spawn "niri" "msg" "action" "load-config-file"; }
+    
+    // === Applications ===
+    Mod+Return hotkey-overlay-title="Open Terminal: Ghostty" { spawn "ghostty"; }
+    Mod+Space hotkey-overlay-title="App Launcher" { spawn "noctalia-shell" "ipc" "call" "launcher" "toggle"; }
+    Mod+E hotkey-overlay-title="File Manager: Nautilus" { spawn "nautilus"; }
+    
+    // === Screen Lock ===
+    Mod+Ctrl+L hotkey-overlay-title="Lock Screen" { spawn "noctalia-shell" "ipc" "call" "lockScreen" "lock"; }
+    
+    // === Window Management ===
+    Mod+O hotkey-overlay-title="Overview" { toggle-overview; }
+    Mod+Q hotkey-overlay-title="Close Window" { close-window; }
+    Mod+F hotkey-overlay-title="Maximize Column" { maximize-column; }
+    Mod+Shift+F hotkey-overlay-title="Fullscreen Window" { fullscreen-window; }
+    
+    // Focus (vim keys shown in overlay, arrows as hidden alternatives)
+    // J/K: focus window in column, or next workspace if at edge
+    Mod+H hotkey-overlay-title="Focus Left" { focus-column-left; }
+    Mod+J hotkey-overlay-title="Focus Down/Workspace" { focus-window-or-workspace-down; }
+    Mod+K hotkey-overlay-title="Focus Up/Workspace" { focus-window-or-workspace-up; }
+    Mod+L hotkey-overlay-title="Focus Right" { focus-column-right; }
+    Mod+Left hotkey-overlay-title=null { focus-column-left; }
+    Mod+Down hotkey-overlay-title=null { focus-window-or-workspace-down; }
+    Mod+Up hotkey-overlay-title=null { focus-window-or-workspace-up; }
+    Mod+Right hotkey-overlay-title=null { focus-column-right; }
+    
+    // Move windows (vim keys shown in overlay, arrows as hidden alternatives)
+    // Shift+J/K: move window in column, or to next workspace if at edge
+    Mod+Shift+H hotkey-overlay-title="Move Window Left" { move-column-left; }
+    Mod+Shift+J hotkey-overlay-title="Move Window Down/Workspace" { move-window-down-or-to-workspace-down; }
+    Mod+Shift+K hotkey-overlay-title="Move Window Up/Workspace" { move-window-up-or-to-workspace-up; }
+    Mod+Shift+L hotkey-overlay-title="Move Window Right" { move-column-right; }
+    Mod+Shift+Left hotkey-overlay-title=null { move-column-left; }
+    Mod+Shift+Down hotkey-overlay-title=null { move-window-down-or-to-workspace-down; }
+    Mod+Shift+Up hotkey-overlay-title=null { move-window-up-or-to-workspace-up; }
+    Mod+Shift+Right hotkey-overlay-title=null { move-column-right; }
+    
+    // Workspaces
+    Mod+1 { focus-workspace 1; }
+    Mod+2 { focus-workspace 2; }
+    Mod+3 { focus-workspace 3; }
+    Mod+4 { focus-workspace 4; }
+    Mod+5 { focus-workspace 5; }
+    Mod+6 { focus-workspace 6; }
+    Mod+7 { focus-workspace 7; }
+    Mod+8 { focus-workspace 8; }
+    Mod+9 { focus-workspace 9; }
+    
+    Mod+Shift+1 { move-column-to-workspace 1; }
+    Mod+Shift+2 { move-column-to-workspace 2; }
+    Mod+Shift+3 { move-column-to-workspace 3; }
+    Mod+Shift+4 { move-column-to-workspace 4; }
+    Mod+Shift+5 { move-column-to-workspace 5; }
+    Mod+Shift+6 { move-column-to-workspace 6; }
+    Mod+Shift+7 { move-column-to-workspace 7; }
+    Mod+Shift+8 { move-column-to-workspace 8; }
+    Mod+Shift+9 { move-column-to-workspace 9; }
+    
+    // Adjacent workspace
+    Mod+Tab { focus-workspace-down; }
+    Mod+Shift+Tab { focus-workspace-up; }
+    
+    // Column width
+    Mod+Minus { set-column-width "-10%"; }
+    Mod+Equal { set-column-width "+10%"; }
+    
+    // Window height
+    Mod+Shift+Minus { set-window-height "-10%"; }
+    Mod+Shift+Equal { set-window-height "+10%"; }
+    
+    // Consume/expel (merge/split columns)
+    Mod+BracketLeft { consume-window-into-column; }
+    Mod+BracketRight { expel-window-from-column; }
+    
+    // Screenshot (requires grim + slurp installed via Nix)
+    // Saves to ~/Pictures/Screenshots/ AND copies to clipboard
+    Print hotkey-overlay-title="Screenshot Region" { spawn "bash" "-c" "f=~/Pictures/Screenshots/screenshot-$(date +%Y-%m-%d-%H-%M-%S).png && grim -g \"$(slurp)\" \"$f\" && wl-copy < \"$f\""; }
+    Mod+Print hotkey-overlay-title="Screenshot Full Screen" { spawn "bash" "-c" "f=~/Pictures/Screenshots/screenshot-$(date +%Y-%m-%d-%H-%M-%S).png && grim \"$f\" && wl-copy < \"$f\""; }
+    
+    // === Media Keys ===
+    XF86AudioRaiseVolume { spawn "swayosd-client" "--output-volume" "raise"; }
+    XF86AudioLowerVolume { spawn "swayosd-client" "--output-volume" "lower"; }
+    XF86AudioMute { spawn "swayosd-client" "--output-volume" "mute-toggle"; }
+    XF86AudioMicMute { spawn "swayosd-client" "--input-volume" "mute-toggle"; }
+    
+    XF86MonBrightnessUp { spawn "swayosd-client" "--brightness" "raise"; }
+    XF86MonBrightnessDown { spawn "swayosd-client" "--brightness" "lower"; }
+    
+    // === Power ===
+    Mod+Shift+S hotkey-overlay-title="Suspend System" { spawn "systemctl" "suspend"; }
+    Mod+Shift+P hotkey-overlay-title="Power Off Monitors" { power-off-monitors; }
+}
+
+// ------------------------------
+// Animations
+// ------------------------------
+animations {
+    // Smooth window open/close
+    window-open {
+        duration-ms 200
+        curve "ease-out-expo"
+    }
+    window-close {
+        duration-ms 150
+        curve "ease-out-quad"
+    }
+    
+    // Workspace switch
+    workspace-switch {
+        duration-ms 250
+        curve "ease-out-expo"
+    }
+}
+
+// ------------------------------
+// Prefer No CSD (Client-Side Decorations)
+// ------------------------------
+prefer-no-csd
+
+// ------------------------------
+// Screenshot Path
+// ------------------------------
+screenshot-path "~/Pictures/Screenshots/screenshot-%Y-%m-%d-%H-%M-%S.png"
+
+// ------------------------------
+// Hotkey Overlay (shows keybinds on Mod press)
+// ------------------------------
+// Disable if you find it annoying
+hotkey-overlay {
+    skip-at-startup
+}
+
+include "./noctalia.kdl"
+

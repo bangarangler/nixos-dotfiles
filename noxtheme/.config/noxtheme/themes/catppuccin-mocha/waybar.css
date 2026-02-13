@@ -1,0 +1,171 @@
+/* Catppuccin Mocha Waybar Theme */
+/* Include with: @import "~/.config/noxtheme/current/theme/waybar.css"; */
+
+@define-color base #1e1e2e;
+@define-color surface #313244;
+@define-color overlay #6c7086;
+@define-color muted #7f849c;
+@define-color subtle #a6adc8;
+@define-color text #cdd6f4;
+@define-color love #f38ba8;
+@define-color gold #f9e2af;
+@define-color rose #fab387;
+@define-color pine #89dceb;
+@define-color foam #a6e3a1;
+@define-color iris #cba6f7;
+@define-color highlight_low #313244;
+@define-color highlight_med #45475a;
+@define-color highlight_high #585b70;
+
+* {
+    font-family: 'JetBrainsMono Nerd Font';
+    font-size: 13px;
+    font-weight: bold;
+    min-height: 0px;
+}
+
+window#waybar {
+    background-color: transparent;
+    transition-property: background-color;
+    transition-duration: .5s;
+}
+
+window#waybar.empty #window {
+    background: transparent;
+    border: none;
+    color: transparent;
+}
+
+.modules-center {
+    margin: 0 8px;
+}
+
+tooltip {
+    background-color: @surface;
+    border: 1px solid @highlight_med;
+    border-radius: 6px;
+}
+
+tooltip label {
+    color: @text;
+    font-weight: normal;
+}
+
+#workspaces {
+    border-radius: 6px;
+    margin: 6px 3px 12px 3px;
+}
+
+#workspaces button {
+    padding: 0px 4px;
+    margin: 0 3px 0 0;
+    border-radius: 6px;
+    background-color: @surface;
+    color: @text;
+    box-shadow: 0 1px 6px -2px rgba(0, 0, 0, 0.8);
+}
+
+#workspaces button.active {
+    background-color: @iris;
+    color: @base;
+}
+
+#workspaces button:hover {
+    background-color: @highlight_high;
+    color: @gold;
+}
+
+#workspaces button.empty {
+    opacity: 0.5;
+    background-color: @surface;
+    color: @muted;
+}
+
+#tray,
+#window,
+#mpris,
+#cpu,
+#clock,
+#battery,
+#network,
+#memory,
+#backlight,
+#bluetooth,
+#pulseaudio,
+#custom-weather,
+#custom-omarchy,
+#idle_inhibitor {
+    min-width: 14px;
+    margin: 6px 3px 12px 3px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    box-shadow: 0 1px 6px -2px rgba(0, 0, 0, 0.8);
+}
+
+#window {
+    background-color: @highlight_low;
+    color: @gold;
+}
+
+#clock {
+    background-color: @surface;
+    color: @iris;
+}
+
+#battery {
+    background-color: @foam;
+    color: @base;
+}
+
+#cpu {
+    background-color: @gold;
+    color: @base;
+}
+
+#memory {
+    background-color: @pine;
+    color: @base;
+}
+
+#network {
+    background-color: @iris;
+    color: @base;
+}
+
+#pulseaudio {
+    background-color: @love;
+    color: @base;
+}
+
+#backlight {
+    background-color: @rose;
+    color: @base;
+}
+
+#bluetooth {
+    background-color: @foam;
+    color: @base;
+}
+
+#tray {
+    background-color: @overlay;
+    color: @gold;
+}
+
+#idle_inhibitor {
+    background-color: @muted;
+    color: @base;
+}
+
+#idle_inhibitor.activated {
+    background-color: @foam;
+    color: @base;
+}
+
+#cpu.critical,
+#memory.critical,
+#battery.warning,
+#battery.critical {
+    background-color: @love;
+    color: @base;
+}

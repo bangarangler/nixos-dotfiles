@@ -1,0 +1,85 @@
+# Florida-man (GTA VI) for yazi - Catppuccin Frappe base
+
+[manager]
+cwd = { fg = "#81c8be" }
+hovered = { fg = "#303446", bg = "#8caaee" }
+preview_hovered = { underline = true }
+find_keyword = { fg = "#e5c890", italic = true }
+find_position = { fg = "#f4b8e4", bg = "reset", italic = true }
+marker_selected = { fg = "#a6d189", bg = "#a6d189" }
+marker_copied = { fg = "#e5c890", bg = "#e5c890" }
+marker_cut = { fg = "#e78284", bg = "#e78284" }
+tab_active = { fg = "#303446", bg = "#8caaee" }
+tab_inactive = { fg = "#c6d0f5", bg = "#414559" }
+tab_width = 1
+border_symbol = "│"
+border_style = { fg = "#51576d" }
+
+[status]
+separator_open = ""
+separator_close = ""
+separator_style = { fg = "#414559", bg = "#414559" }
+mode_normal = { fg = "#303446", bg = "#8caaee", bold = true }
+mode_select = { fg = "#303446", bg = "#a6d189", bold = true }
+mode_unset = { fg = "#303446", bg = "#f4b8e4", bold = true }
+progress_label = { fg = "#c6d0f5", bold = true }
+progress_normal = { fg = "#8caaee", bg = "#414559" }
+progress_error = { fg = "#e78284", bg = "#414559" }
+
+[input]
+border = { fg = "#8caaee" }
+title = {}
+value = {}
+selected = { reversed = true }
+
+[select]
+border = { fg = "#8caaee" }
+active = { fg = "#f4b8e4" }
+inactive = {}
+
+[tasks]
+border = { fg = "#8caaee" }
+title = {}
+hovered = { underline = true }
+
+[which]
+mask = { bg = "#414559" }
+cand = { fg = "#81c8be" }
+rest = { fg = "#737994" }
+desc = { fg = "#f4b8e4" }
+separator = "  "
+separator_style = { fg = "#51576d" }
+
+[help]
+on = { fg = "#f4b8e4" }
+exec = { fg = "#81c8be" }
+desc = { fg = "#737994" }
+hovered = { bg = "#414559", bold = true }
+footer = { fg = "#414559", bg = "#c6d0f5" }
+
+[filetype]
+rules = [
+  { mime = "image/*", fg = "#81c8be" },
+  { mime = "video/*", fg = "#e5c890" },
+  { mime = "audio/*", fg = "#e5c890" },
+  { mime = "application/zip", fg = "#f4b8e4" },
+  { mime = "application/gzip", fg = "#f4b8e4" },
+  { mime = "application/x-tar", fg = "#f4b8e4" },
+  { mime = "application/x-bzip", fg = "#f4b8e4" },
+  { mime = "application/x-bzip2", fg = "#f4b8e4" },
+  { mime = "application/x-7z-compressed", fg = "#f4b8e4" },
+  { mime = "application/x-rar", fg = "#f4b8e4" },
+  { name = "*.json", fg = "#e5c890" },
+  { name = "*.md", fg = "#e5c890" },
+  { name = "*.rs", fg = "#ef9f76" },
+  { name = "*.go", fg = "#99d1db" },
+  { name = "*.lua", fg = "#8caaee" },
+  { name = "*.sh", fg = "#a6d189" },
+  { name = "*.py", fg = "#e5c890" },
+  { name = "*.ts", fg = "#8caaee" },
+  { name = "*.tsx", fg = "#8caaee" },
+  { name = "*.js", fg = "#e5c890" },
+  { name = "*.jsx", fg = "#e5c890" },
+  { name = "*", fg = "#c6d0f5" },
+  { name = "*/", fg = "#8caaee" },
+]

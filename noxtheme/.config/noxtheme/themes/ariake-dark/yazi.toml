@@ -1,0 +1,117 @@
+# noxtheme: Ariake Dark - Yazi file manager
+
+[manager]
+cwd = { fg = "#93DDFB" }
+
+hovered = { fg = "#F5FAFF", bg = "#313343" }
+preview_hovered = { underline = true }
+
+find_keyword = { fg = "#DDA2F6", bold = true, italic = true }
+find_position = { fg = "#A571F4", bg = "reset", bold = true, italic = true }
+
+marker_copied = { fg = "#9AEFEA", bg = "#9AEFEA" }
+marker_cut = { fg = "#E05252", bg = "#E05252" }
+marker_marked = { fg = "#A571F4", bg = "#A571F4" }
+marker_selected = { fg = "#DDA2F6", bg = "#DDA2F6" }
+
+tab_active = { fg = "#1F212A", bg = "#A571F4" }
+tab_inactive = { fg = "#B9BED5", bg = "#313343" }
+tab_width = 1
+
+count_copied = { fg = "#1F212A", bg = "#9AEFEA" }
+count_cut = { fg = "#1F212A", bg = "#E05252" }
+count_selected = { fg = "#1F212A", bg = "#DDA2F6" }
+
+border = { fg = "#555C77" }
+
+[mode]
+normal = { fg = "#1F212A", bg = "#A571F4", bold = true }
+select = { fg = "#1F212A", bg = "#9AEFEA", bold = true }
+unset = { fg = "#1F212A", bg = "#E05252", bold = true }
+
+[status]
+separator_open = ""
+separator_close = ""
+separator_style = { fg = "#313343", bg = "#313343" }
+
+mode_normal = { fg = "#1F212A", bg = "#A571F4", bold = true }
+mode_select = { fg = "#1F212A", bg = "#9AEFEA", bold = true }
+mode_unset = { fg = "#1F212A", bg = "#E05252", bold = true }
+
+progress_label = { fg = "#F5FAFF", bold = true }
+progress_normal = { fg = "#A571F4", bg = "#313343" }
+progress_error = { fg = "#E05252", bg = "#313343" }
+
+permissions_t = { fg = "#93DDFB" }
+permissions_r = { fg = "#DDA2F6" }
+permissions_w = { fg = "#E05252" }
+permissions_x = { fg = "#9AEFEA" }
+permissions_s = { fg = "#555C77" }
+
+[input]
+border = { fg = "#A571F4" }
+title = {}
+value = {}
+selected = { reversed = true }
+
+[pick]
+border = { fg = "#A571F4" }
+active = { fg = "#DDA2F6", bold = true }
+inactive = {}
+
+[confirm]
+border = { fg = "#A571F4" }
+title = {}
+content = {}
+list = {}
+btn_cancel = { fg = "#E05252" }
+btn_submit = { fg = "#9AEFEA" }
+
+[completion]
+border = { fg = "#A571F4" }
+active = { fg = "#DDA2F6", bg = "#313343" }
+inactive = {}
+icon_file = ""
+icon_folder = ""
+icon_command = ""
+
+[tasks]
+border = { fg = "#A571F4" }
+title = {}
+hovered = { fg = "#DDA2F6", underline = true }
+
+[which]
+cols = 3
+mask = { bg = "#1C1F26" }
+cand = { fg = "#93DDFB" }
+rest = { fg = "#555C77" }
+desc = { fg = "#A571F4" }
+separator = "  "
+separator_style = { fg = "#555C77" }
+
+[help]
+on = { fg = "#93DDFB" }
+run = { fg = "#A571F4" }
+hovered = { reversed = true, bold = true }
+footer = { fg = "#555C77" }
+
+[notify]
+title_info = { fg = "#93DDFB" }
+title_warn = { fg = "#DDA2F6" }
+title_error = { fg = "#E05252" }
+icon_info = ""
+icon_warn = ""
+icon_error = ""
+
+[filetype]
+rules = [
+  { mime = "image/*", fg = "#DDA2F6" },
+  { mime = "{audio,video}/*", fg = "#A571F4" },
+  { mime = "application/{zip,gzip,x-tar,x-bzip*,x-7z-compressed,x-rar}", fg = "#E05252" },
+  { mime = "application/{pdf,doc,rtf}", fg = "#9AEFEA" },
+  { name = "*", is = "orphan", bg = "#E05252" },
+  { name = "*", is = "exec", fg = "#9AEFEA" },
+  { name = "*", is = "link", fg = "#93DDFB" },
+  { name = "*/", is = "link", fg = "#93DDFB" },
+  { name = "*/", fg = "#A571F4", bold = true },
+]

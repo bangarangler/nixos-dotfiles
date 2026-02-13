@@ -1,0 +1,697 @@
+#!/usr/bin/env bash
+# ==========================================
+# noxtheme - NixOS Theme Switcher
+# ==========================================
+# Similar to Omarchy's theme system but for Niri + Noctalia
+#
+# Usage:
+#   noxtheme list          - List available themes
+#   noxtheme current       - Show current theme
+#   noxtheme set <theme>   - Switch to theme
+#   noxtheme reload        - Reload current theme
+#   noxtheme wallpaper     - Set random wallpaper from theme
+
+set -euo pipefail
+
+NOXTHEME_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/noxtheme"
+THEMES_DIR="$NOXTHEME_DIR/themes"
+CURRENT_DIR="$NOXTHEME_DIR/current"
+THEME_FILE="$CURRENT_DIR/theme.name"
+MUTAGEN_FILE="$NOXTHEME_DIR/mutagen.enabled"
+
+# Check if Mutagen mode is enabled (wallpaper-based color generation)
+is_mutagen_mode() {
+    [[ -f "$MUTAGEN_FILE" ]]
+}
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+PURPLE='\033[0;35m'
+CYAN='\033[0;36m'
+NC='\033[0m'
+
+log_info() { echo -e "${GREEN}[noxtheme]${NC} $1"; }
+log_warn() { echo -e "${YELLOW}[noxtheme]${NC} $1"; }
+log_error() { echo -e "${RED}[noxtheme]${NC} $1"; }
+log_app() { echo -e "${CYAN}  →${NC} $1"; }
+
+# Toggle Mutagen mode (wallpaper-based theming)
+toggle_mutagen() {
+    if is_mutagen_mode; then
+        rm -f "$MUTAGEN_FILE"
+        log_info "Mutagen mode DISABLED - using theme colors.json"
+    else
+        touch "$MUTAGEN_FILE"
+        # Remove existing colors.json so Noctalia uses wallpaper colors
+        rm -f "${XDG_CONFIG_HOME:-$HOME/.config}/noctalia/colors.json"
+        log_info "Mutagen mode ENABLED - Noctalia will generate colors from wallpaper"
+    fi
+}
+
+show_mutagen_status() {
+    if is_mutagen_mode; then
+        echo -e "Mutagen mode: ${GREEN}enabled${NC} (wallpaper-based colors)"
+    else
+        echo -e "Mutagen mode: ${YELLOW}disabled${NC} (using theme colors.json)"
+    fi
+}
+
+list_themes() {
+    echo -e "${PURPLE}Available themes:${NC}"
+    for theme in "$THEMES_DIR"/*/; do
+        if [[ -d "$theme" ]]; then
+            name=$(basename "$theme")
+            if [[ -f "$THEME_FILE" ]] && [[ "$(cat "$THEME_FILE")" == "$name" ]]; then
+                echo -e "  ${GREEN}* $name${NC} (current)"
+            else
+                echo "    $name"
+            fi
+        fi
+    done
+}
+
+current_theme() {
+    if [[ -f "$THEME_FILE" ]]; then
+        cat "$THEME_FILE"
+    else
+        echo "none"
+    fi
+}
+
+apply_theme() {
+    local theme="$1"
+    local theme_dir="$THEMES_DIR/$theme"
+
+    if [[ ! -d "$theme_dir" ]]; then
+        log_error "Theme '$theme' not found in $THEMES_DIR"
+        exit 1
+    fi
+
+    log_info "Applying theme: $theme"
+
+    # Create current directory structure
+    mkdir -p "$CURRENT_DIR/theme"
+    
+    # Save theme name
+    echo "$theme" > "$THEME_FILE"
+
+    # Copy theme files to current
+    for file in "$theme_dir"/*; do
+        if [[ -f "$file" ]]; then
+            local filename=$(basename "$file")
+            cp "$file" "$CURRENT_DIR/theme/$filename"
+        elif [[ -d "$file" ]]; then
+            local dirname=$(basename "$file")
+            rm -rf "$CURRENT_DIR/theme/$dirname"
+            cp -r "$file" "$CURRENT_DIR/theme/$dirname"
+        fi
+    done
+
+    # Apply to individual apps
+    apply_ghostty "$theme_dir"
+    apply_alacritty "$theme_dir"
+    apply_neovim "$theme_dir"
+    apply_btop "$theme_dir"
+    apply_yazi "$theme_dir"
+    apply_cava "$theme_dir"
+    apply_gtk "$theme_dir"
+    apply_qt "$theme_dir"
+    apply_hyprland "$theme_dir"
+    apply_waybar "$theme_dir"
+    apply_niri "$theme_dir"
+    apply_browsers "$theme_dir"
+    apply_noctalia "$theme_dir"
+    apply_starship "$theme_dir"
+    
+    # Set wallpaper if backgrounds exist
+    set_wallpaper "$theme_dir"
+
+    echo ""
+    log_info "Theme '$theme' applied!"
+    log_warn "Some apps may need restart (ghostty, nvim, hyprland)"
+}
+
+set_wallpaper() {
+    local theme_dir="$1"
+    
+    if [[ -d "$theme_dir/backgrounds" ]]; then
+        # Get random wallpaper from backgrounds folder
+        local wallpapers=()
+        while IFS= read -r -d '' file; do
+            wallpapers+=("$file")
+        done < <(find "$theme_dir/backgrounds" -type f \( -name "*.png" -o -name "*.jpg" -o -name "*.jpeg" -o -name "*.webp" \) -print0 2>/dev/null)
+        
+        if [[ ${#wallpapers[@]} -gt 0 ]]; then
+            local wallpaper="${wallpapers[$RANDOM % ${#wallpapers[@]}]}"
+            ln -sf "$wallpaper" "$CURRENT_DIR/background"
+            log_app "Wallpaper: $(basename "$wallpaper")"
+            
+            # Trigger Noctalia wallpaper update if niri is running
+            if command -v niri &>/dev/null && pgrep -x niri &>/dev/null; then
+                # Noctalia will auto-generate colors from wallpaper
+                log_app "Noctalia will regenerate colors from wallpaper"
+            fi
+        fi
+    fi
+}
+
+apply_ghostty() {
+    local theme_dir="$1"
+    local ghostty_conf="$theme_dir/ghostty.conf"
+    local target="${XDG_CONFIG_HOME:-$HOME/.config}/ghostty/themes/current"
+    
+    if [[ -f "$ghostty_conf" ]]; then
+        mkdir -p "$(dirname "$target")"
+        cp "$ghostty_conf" "$target"
+        log_app "Ghostty theme applied"
+    fi
+}
+
+apply_alacritty() {
+    local theme_dir="$1"
+    local alacritty_conf="$theme_dir/alacritty.toml"
+    local target="${XDG_CONFIG_HOME:-$HOME/.config}/alacritty/colors.toml"
+    
+    if [[ -f "$alacritty_conf" ]]; then
+        mkdir -p "$(dirname "$target")"
+        cp "$alacritty_conf" "$target"
+        log_app "Alacritty theme applied"
+    fi
+}
+
+apply_neovim() {
+    local theme_dir="$1"
+    local nvim_theme="$theme_dir/neovim.lua"
+    local target="${XDG_CONFIG_HOME:-$HOME/.config}/nvim/lua/plugins/colorscheme.lua"
+    
+    if [[ -f "$nvim_theme" ]]; then
+        mkdir -p "$(dirname "$target")"
+        cp "$nvim_theme" "$target"
+        log_app "Neovim colorscheme applied (restart nvim)"
+    fi
+}
+
+apply_btop() {
+    local theme_dir="$1"
+    local btop_theme="$theme_dir/btop.theme"
+    local target="${XDG_CONFIG_HOME:-$HOME/.config}/btop/themes/current.theme"
+    
+    if [[ -f "$btop_theme" ]]; then
+        mkdir -p "$(dirname "$target")"
+        cp "$btop_theme" "$target"
+        log_app "btop theme applied"
+    fi
+}
+
+apply_yazi() {
+    local theme_dir="$1"
+    local yazi_theme="$theme_dir/yazi.toml"
+    local target="${XDG_CONFIG_HOME:-$HOME/.config}/yazi/theme.toml"
+    
+    if [[ -f "$yazi_theme" ]]; then
+        mkdir -p "$(dirname "$target")"
+        cp "$yazi_theme" "$target"
+        log_app "Yazi theme applied"
+    fi
+}
+
+apply_cava() {
+    local theme_dir="$1"
+    local cava_conf="$theme_dir/cava.conf"
+    local target="${XDG_CONFIG_HOME:-$HOME/.config}/cava/config"
+    
+    if [[ -f "$cava_conf" ]]; then
+        mkdir -p "$(dirname "$target")"
+        cp "$cava_conf" "$target"
+        log_app "Cava theme applied"
+    fi
+}
+
+apply_gtk() {
+    local theme_dir="$1"
+    local config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
+    
+    # GTK 3.0
+    if [[ -d "$theme_dir/gtk-3.0" ]]; then
+        mkdir -p "$config_home/gtk-3.0"
+        cp "$theme_dir/gtk-3.0/settings.ini" "$config_home/gtk-3.0/" 2>/dev/null || true
+        cp "$theme_dir/gtk-3.0/gtk.css" "$config_home/gtk-3.0/" 2>/dev/null || true
+        log_app "GTK 3.0 theme applied"
+    fi
+    
+    # GTK 4.0
+    if [[ -d "$theme_dir/gtk-4.0" ]]; then
+        mkdir -p "$config_home/gtk-4.0"
+        cp "$theme_dir/gtk-4.0/settings.ini" "$config_home/gtk-4.0/" 2>/dev/null || true
+        cp "$theme_dir/gtk-4.0/gtk.css" "$config_home/gtk-4.0/" 2>/dev/null || true
+        log_app "GTK 4.0 theme applied"
+    fi
+}
+
+apply_qt() {
+    local theme_dir="$1"
+    local config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
+    
+    # Qt5
+    if [[ -f "$theme_dir/qt5ct.conf" ]]; then
+        mkdir -p "$config_home/qt5ct"
+        cp "$theme_dir/qt5ct.conf" "$config_home/qt5ct/qt5ct.conf"
+        log_app "Qt5 theme applied"
+    fi
+    if [[ -f "$theme_dir/qt5ct-colors.conf" ]]; then
+        mkdir -p "$config_home/qt5ct/colors"
+        local theme_name=$(basename "$theme_dir")
+        cp "$theme_dir/qt5ct-colors.conf" "$config_home/qt5ct/colors/$theme_name.conf"
+    fi
+    
+    # Qt6
+    if [[ -f "$theme_dir/qt6ct.conf" ]]; then
+        mkdir -p "$config_home/qt6ct"
+        cp "$theme_dir/qt6ct.conf" "$config_home/qt6ct/qt6ct.conf"
+        log_app "Qt6 theme applied"
+    fi
+    if [[ -f "$theme_dir/qt5ct-colors.conf" ]]; then
+        mkdir -p "$config_home/qt6ct/colors"
+        local theme_name=$(basename "$theme_dir")
+        # Qt6 uses same color format as Qt5
+        cp "$theme_dir/qt5ct-colors.conf" "$config_home/qt6ct/colors/$theme_name.conf"
+    fi
+}
+
+apply_hyprland() {
+    local theme_dir="$1"
+    local hypr_conf="$theme_dir/hyprland.conf"
+    local colors_sh="$theme_dir/colors.sh"
+    local target="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/themes/current.conf"
+    
+    # Check if running standalone Hyprland (not with Noctalia)
+    local standalone_hyprland=false
+    if pgrep -x Hyprland &>/dev/null && ! pgrep -f "noctalia" &>/dev/null; then
+        standalone_hyprland=true
+    fi
+    
+    if [[ -f "$hypr_conf" ]]; then
+        mkdir -p "$(dirname "$target")"
+        cp "$hypr_conf" "$target"
+        log_app "Hyprland theme applied"
+    fi
+    
+    # For standalone Hyprland, also set cursor and icon theme via hyprctl
+    if $standalone_hyprland && [[ -f "$colors_sh" ]]; then
+        source "$colors_sh"
+        
+        # Set cursor theme (uses GTK cursor or Bibata as fallback)
+        local cursor_theme="${cursor_theme:-Bibata-Modern-Classic}"
+        local cursor_size="${cursor_size:-24}"
+        local icon_theme="${icon_theme:-Yaru}"
+        
+        # Apply cursor theme at runtime
+        if command -v hyprctl &>/dev/null; then
+            hyprctl setcursor "$cursor_theme" "$cursor_size" &>/dev/null || true
+            log_app "Hyprland cursor: $cursor_theme ($cursor_size)"
+        fi
+        
+        # Generate hyprland env snippet for cursor/icon persistence
+        local hypr_env="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/themes/env.conf"
+        cat > "$hypr_env" << EOF
+# Generated by noxtheme - cursor and icon theme for standalone Hyprland
+# Source this in hyprland.conf: source = ~/.config/hypr/themes/env.conf
+
+env = XCURSOR_THEME,$cursor_theme
+env = XCURSOR_SIZE,$cursor_size
+env = GTK_THEME,Adwaita:dark
+env = ICON_THEME,$icon_theme
+
+exec-once = hyprctl setcursor $cursor_theme $cursor_size
+EOF
+        log_app "Hyprland env: ~/.config/hypr/themes/env.conf"
+    fi
+    
+    # Reload hyprland if running
+    if command -v hyprctl &>/dev/null && pgrep -x Hyprland &>/dev/null; then
+        hyprctl reload &>/dev/null || true
+    fi
+}
+
+apply_waybar() {
+    local theme_dir="$1"
+    local waybar_css="$theme_dir/waybar.css"
+    local target="${XDG_CONFIG_HOME:-$HOME/.config}/waybar/themes/current.css"
+    
+    if [[ -f "$waybar_css" ]]; then
+        mkdir -p "$(dirname "$target")"
+        cp "$waybar_css" "$target"
+        log_app "Waybar theme applied"
+        
+        # Try to reload waybar if running
+        if pgrep -x waybar &>/dev/null; then
+            pkill -SIGUSR2 waybar &>/dev/null || true
+        fi
+    fi
+}
+
+apply_niri() {
+    local theme_dir="$1"
+    local colors_sh="$theme_dir/colors.sh"
+    
+    # Only apply if niri is running
+    if ! command -v niri &>/dev/null || ! pgrep -x niri &>/dev/null; then
+        return
+    fi
+    
+    if [[ -f "$colors_sh" ]]; then
+        source "$colors_sh"
+        
+        # Niri uses 'niri msg' to set colors at runtime
+        # Focus ring (active window border)
+        local focus_color="${accent:-#bd93f9}"
+        # Inactive border
+        local inactive_color="${color8:-#6272a4}"
+        
+        # Strip # from hex colors for niri
+        focus_color="${focus_color#\#}"
+        inactive_color="${inactive_color#\#}"
+        
+        # Apply focus ring colors via niri msg
+        # Note: This is runtime only - for persistent config, use niri config.kdl
+        niri msg action focus-ring-color "${focus_color}ff" &>/dev/null || true
+        
+        log_app "Niri focus colors applied (runtime)"
+        
+        # Also generate a niri theme snippet for manual inclusion
+        local niri_theme="${XDG_CONFIG_HOME:-$HOME/.config}/niri/themes/current.kdl"
+        mkdir -p "$(dirname "$niri_theme")"
+        cat > "$niri_theme" << EOF
+// Generated by noxtheme - source this in config.kdl
+// Add: include "themes/current.kdl"
+
+layout {
+    focus-ring {
+        active-color "#${focus_color}"
+        inactive-color "#${inactive_color}"
+    }
+    border {
+        active-color "#${focus_color}"
+        inactive-color "#${inactive_color}"
+    }
+}
+EOF
+        log_app "Niri theme snippet: ~/.config/niri/themes/current.kdl"
+    fi
+}
+
+apply_browsers() {
+    local theme_dir="$1"
+    local colors_sh="$theme_dir/colors.sh"
+    local config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
+    
+    if [[ ! -f "$colors_sh" ]]; then
+        return
+    fi
+    
+    source "$colors_sh"
+    
+    # Generate userChrome.css for Firefox-based browsers (Zen, Firefox, Floorp, etc.)
+    local userchrome_css=$(cat << EOF
+/* Generated by noxtheme - Firefox/Zen Browser Theme */
+:root {
+    --noxtheme-bg: ${background:-#282a36};
+    --noxtheme-fg: ${foreground:-#f8f8f2};
+    --noxtheme-accent: ${accent:-#bd93f9};
+    --noxtheme-selection: ${selection_background:-#44475a};
+    --noxtheme-comment: ${color8:-#6272a4};
+    --noxtheme-red: ${color1:-#ff5555};
+    --noxtheme-green: ${color2:-#50fa7b};
+    --noxtheme-yellow: ${color3:-#f1fa8c};
+    --noxtheme-blue: ${color4:-#6272a4};
+    --noxtheme-magenta: ${color5:-#ff79c6};
+    --noxtheme-cyan: ${color6:-#8be9fd};
+    
+    /* Override Firefox UI colors */
+    --toolbar-bgcolor: var(--noxtheme-bg) !important;
+    --toolbar-color: var(--noxtheme-fg) !important;
+    --urlbar-background-color: var(--noxtheme-selection) !important;
+    --urlbar-box-bgcolor: var(--noxtheme-selection) !important;
+    --lwt-accent-color: var(--noxtheme-accent) !important;
+    --lwt-text-color: var(--noxtheme-fg) !important;
+    --arrowpanel-background: var(--noxtheme-bg) !important;
+    --arrowpanel-color: var(--noxtheme-fg) !important;
+    --tab-selected-bgcolor: var(--noxtheme-selection) !important;
+    --tab-selected-textcolor: var(--noxtheme-fg) !important;
+}
+
+/* Zen Browser specific - works with Zen's native theming */
+@-moz-document url-prefix("chrome://") {
+    :root {
+        --zen-colors-primary: var(--noxtheme-accent) !important;
+        --zen-colors-secondary: var(--noxtheme-selection) !important;
+        --zen-colors-tertiary: var(--noxtheme-comment) !important;
+        --zen-colors-border: var(--noxtheme-comment) !important;
+    }
+}
+EOF
+)
+
+    # Apply to Zen Browser (primary)
+    local zen_chrome="$HOME/.zen/default/chrome"
+    if [[ -d "$HOME/.zen" ]]; then
+        # Find the default profile
+        local zen_profile=$(find "$HOME/.zen" -maxdepth 1 -type d -name "*.default*" 2>/dev/null | head -1)
+        if [[ -n "$zen_profile" ]]; then
+            zen_chrome="$zen_profile/chrome"
+        fi
+        mkdir -p "$zen_chrome"
+        echo "$userchrome_css" > "$zen_chrome/userChrome.css"
+        log_app "Zen Browser userChrome.css applied"
+    fi
+    
+    # Apply to Firefox Developer Edition
+    local firefox_profile=$(find "$HOME/.mozilla/firefox" -maxdepth 1 -type d -name "*.dev-edition-default*" 2>/dev/null | head -1)
+    if [[ -n "$firefox_profile" ]]; then
+        mkdir -p "$firefox_profile/chrome"
+        echo "$userchrome_css" > "$firefox_profile/chrome/userChrome.css"
+        log_app "Firefox DevEdition userChrome.css applied"
+    fi
+    
+    # Apply to regular Firefox
+    local firefox_default=$(find "$HOME/.mozilla/firefox" -maxdepth 1 -type d -name "*.default-release*" 2>/dev/null | head -1)
+    if [[ -n "$firefox_default" ]]; then
+        mkdir -p "$firefox_default/chrome"
+        echo "$userchrome_css" > "$firefox_default/chrome/userChrome.css"
+        log_app "Firefox userChrome.css applied"
+    fi
+    
+    # Chrome/Chromium manifest for extension-based theming
+    # Note: Chrome doesn't support userChrome, needs extension or GTK theme
+    # We generate a manifest.json that could be loaded as an unpacked extension
+    local chrome_theme_dir="$config_home/noxtheme/chrome-theme"
+    mkdir -p "$chrome_theme_dir"
+    cat > "$chrome_theme_dir/manifest.json" << EOF
+{
+  "manifest_version": 3,
+  "name": "noxtheme",
+  "version": "1.0",
+  "description": "Generated by noxtheme",
+  "theme": {
+    "colors": {
+      "frame": [$(printf '%d, %d, %d' 0x${background:1:2} 0x${background:3:2} 0x${background:5:2})],
+      "frame_inactive": [$(printf '%d, %d, %d' 0x${background:1:2} 0x${background:3:2} 0x${background:5:2})],
+      "toolbar": [$(printf '%d, %d, %d' 0x${selection_background:1:2} 0x${selection_background:3:2} 0x${selection_background:5:2})],
+      "tab_background_text": [$(printf '%d, %d, %d' 0x${foreground:1:2} 0x${foreground:3:2} 0x${foreground:5:2})],
+      "bookmark_text": [$(printf '%d, %d, %d' 0x${foreground:1:2} 0x${foreground:3:2} 0x${foreground:5:2})],
+      "ntp_background": [$(printf '%d, %d, %d' 0x${background:1:2} 0x${background:3:2} 0x${background:5:2})],
+      "ntp_text": [$(printf '%d, %d, %d' 0x${foreground:1:2} 0x${foreground:3:2} 0x${foreground:5:2})]
+    }
+  }
+}
+EOF
+    log_app "Chrome theme: ~/.config/noxtheme/chrome-theme/ (load as unpacked extension)"
+}
+
+apply_starship() {
+    local theme_dir="$1"
+    local starship_theme="$theme_dir/starship.toml"
+    local starship_config="${XDG_CONFIG_HOME:-$HOME/.config}/starship.toml"
+    
+    if [[ -f "$starship_theme" ]]; then
+        # Read the palette name from theme's starship.toml
+        local palette
+        palette=$(grep '^palette' "$starship_theme" | head -1 | sed 's/.*= *"\([^"]*\)".*/\1/')
+        
+        if [[ -n "$palette" ]] && [[ -f "$starship_config" ]]; then
+            # Update the palette line in the main starship.toml
+            sed -i "s/^palette = .*/palette = \"$palette\"/" "$starship_config"
+            log_app "Starship palette: $palette"
+        fi
+    fi
+}
+
+apply_noctalia() {
+    local theme_dir="$1"
+    local colors_sh="$theme_dir/colors.sh"
+    local noctalia_dir="${XDG_CONFIG_HOME:-$HOME/.config}/noctalia"
+    
+    # In Mutagen mode, let Noctalia auto-generate colors from wallpaper
+    if is_mutagen_mode; then
+        rm -f "$noctalia_dir/colors.json"
+        log_app "Noctalia: Mutagen mode (colors from wallpaper)"
+        return
+    fi
+    
+    # Otherwise, generate colors.json from theme
+    if [[ -f "$colors_sh" ]]; then
+        # Source colors to get accent, background etc.
+        source "$colors_sh"
+        
+        # Create a colors.json for Noctalia to override auto-generation
+        # This follows Material Design 3 color roles
+        mkdir -p "$noctalia_dir"
+        
+        cat > "$noctalia_dir/colors.json" << EOF
+{
+  "primary": "${accent:-#bd93f9}",
+  "onPrimary": "${background:-#282a36}",
+  "primaryContainer": "${selection_background:-#44475a}",
+  "onPrimaryContainer": "${foreground:-#f8f8f2}",
+  "secondary": "${color5:-#ff79c6}",
+  "onSecondary": "${background:-#282a36}",
+  "tertiary": "${color6:-#8be9fd}",
+  "onTertiary": "${background:-#282a36}",
+  "surface": "${background:-#282a36}",
+  "onSurface": "${foreground:-#f8f8f2}",
+  "surfaceVariant": "${selection_background:-#44475a}",
+  "onSurfaceVariant": "${foreground:-#f8f8f2}",
+  "background": "${background:-#282a36}",
+  "onBackground": "${foreground:-#f8f8f2}",
+  "outline": "${color8:-#6272a4}",
+  "error": "${color1:-#ff5555}",
+  "onError": "${background:-#282a36}"
+}
+EOF
+        log_app "Noctalia colors.json generated"
+    fi
+}
+
+reload_theme() {
+    local current=$(current_theme)
+    if [[ "$current" == "none" ]]; then
+        log_error "No theme currently set"
+        exit 1
+    fi
+    apply_theme "$current"
+}
+
+random_wallpaper() {
+    local current=$(current_theme)
+    if [[ "$current" == "none" ]]; then
+        log_error "No theme currently set"
+        exit 1
+    fi
+    
+    local theme_dir="$THEMES_DIR/$current"
+    set_wallpaper "$theme_dir"
+}
+
+show_info() {
+    local current=$(current_theme)
+    local theme_dir="$THEMES_DIR/$current"
+    
+    echo -e "${PURPLE}noxtheme - NixOS Theme System${NC}"
+    echo ""
+    echo -e "Current theme: ${GREEN}$current${NC}"
+    echo -e "Themes dir:    $THEMES_DIR"
+    echo ""
+    
+    if [[ -d "$theme_dir" ]]; then
+        echo -e "${CYAN}Theme files:${NC}"
+        for file in "$theme_dir"/*; do
+            if [[ -f "$file" ]]; then
+                echo "  $(basename "$file")"
+            elif [[ -d "$file" ]]; then
+                echo "  $(basename "$file")/"
+            fi
+        done
+    fi
+}
+
+# Main
+case "${1:-help}" in
+    list|ls)
+        list_themes
+        ;;
+    current|status)
+        current_theme
+        ;;
+    set|apply)
+        if [[ -z "${2:-}" ]]; then
+            log_error "Usage: noxtheme set <theme>"
+            exit 1
+        fi
+        apply_theme "$2"
+        ;;
+    reload)
+        reload_theme
+        ;;
+    wallpaper|wall|bg)
+        random_wallpaper
+        ;;
+    info)
+        show_info
+        ;;
+    mutagen)
+        toggle_mutagen
+        ;;
+    mutagen-status)
+        show_mutagen_status
+        ;;
+    help|--help|-h)
+        echo "noxtheme - NixOS Theme Switcher"
+        echo ""
+        echo "Usage:"
+        echo "  noxtheme list          List available themes"
+        echo "  noxtheme current       Show current theme"
+        echo "  noxtheme set <theme>   Switch to theme"
+        echo "  noxtheme reload        Reload current theme"
+        echo "  noxtheme wallpaper     Set random wallpaper from theme"
+        echo "  noxtheme info          Show theme info and files"
+        echo "  noxtheme mutagen       Toggle Mutagen mode (wallpaper-based colors)"
+        echo "  noxtheme mutagen-status Show Mutagen mode status"
+        echo ""
+        echo "Themes are stored in: $THEMES_DIR"
+        echo ""
+        echo "Mutagen Mode:"
+        echo "  When enabled, Noctalia auto-generates colors from wallpaper."
+        echo "  When disabled, noxtheme provides colors.json from the theme."
+        echo ""
+        echo "Each theme can contain:"
+        echo "  colors.sh       - Shell-sourceable color variables"
+        echo "  ghostty.conf    - Ghostty terminal colors"
+        echo "  alacritty.toml  - Alacritty terminal colors"
+        echo "  neovim.lua      - Neovim colorscheme plugin"
+        echo "  btop.theme      - btop theme"
+        echo "  yazi.toml       - Yazi file manager theme"
+        echo "  cava.conf       - Cava audio visualizer"
+        echo "  gtk-3.0/        - GTK 3.0 theme (settings.ini, gtk.css)"
+        echo "  gtk-4.0/        - GTK 4.0 theme (settings.ini, gtk.css)"
+        echo "  qt5ct.conf      - Qt5 theme config"
+        echo "  qt6ct.conf      - Qt6 theme config"
+        echo "  qt5ct-colors.conf - Qt color scheme"
+        echo "  hyprland.conf   - Hyprland compositor theme"
+        echo "  waybar.css      - Waybar styles"
+        echo "  starship.toml   - Starship prompt palette"
+        echo "  backgrounds/    - Wallpapers for the theme"
+        echo ""
+        echo "New in this version:"
+        echo "  - Starship prompt palette switching"
+        echo "  - Niri focus/border colors (runtime + config snippet)"
+        echo "  - Browser theming (Zen, Firefox, Chrome)"
+        echo "  - Hyprland cursor/icon themes for standalone setups"
+        ;;
+    *)
+        log_error "Unknown command: $1"
+        echo "Run 'noxtheme help' for usage"
+        exit 1
+        ;;
+esac

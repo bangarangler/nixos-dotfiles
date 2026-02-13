@@ -1,0 +1,33 @@
+# noxtheme: Ariake Dark - Alacritty
+
+[colors.primary]
+background = "#1F212A"
+foreground = "#B9BED5"
+
+[colors.cursor]
+cursor = "#F8F8F0"
+text = "#1F212A"
+
+[colors.selection]
+background = "#313343"
+text = "#F5FAFF"
+
+[colors.normal]
+black = "#1F212A"
+red = "#E05252"
+green = "#9AEFEA"
+yellow = "#DDA2F6"
+blue = "#85B1E0"
+magenta = "#A571F4"
+cyan = "#93DDFB"
+white = "#B9BED5"
+
+[colors.bright]
+black = "#555C77"
+red = "#E05252"
+green = "#9AEFEA"
+yellow = "#DDA2F6"
+blue = "#7E7EDD"
+magenta = "#A571F4"
+cyan = "#93DDFB"
+white = "#F5FAFF"

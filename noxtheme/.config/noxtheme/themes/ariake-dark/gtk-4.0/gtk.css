@@ -1,0 +1,74 @@
+/* noxtheme: Ariake Dark - GTK 4.0 color overrides */
+
+@define-color accent_color #A571F4;
+@define-color accent_bg_color #A571F4;
+@define-color accent_fg_color #1F212A;
+
+@define-color destructive_color #E05252;
+@define-color destructive_bg_color #E05252;
+@define-color destructive_fg_color #F5FAFF;
+
+@define-color success_color #9AEFEA;
+@define-color success_bg_color #9AEFEA;
+@define-color success_fg_color #1F212A;
+
+@define-color warning_color #DDA2F6;
+@define-color warning_bg_color #DDA2F6;
+@define-color warning_fg_color #1F212A;
+
+@define-color error_color #E05252;
+@define-color error_bg_color #E05252;
+@define-color error_fg_color #F5FAFF;
+
+@define-color window_bg_color #1F212A;
+@define-color window_fg_color #B9BED5;
+
+@define-color view_bg_color #1C1F26;
+@define-color view_fg_color #B9BED5;
+
+@define-color headerbar_bg_color #1C1F26;
+@define-color headerbar_fg_color #B9BED5;
+@define-color headerbar_border_color #313343;
+@define-color headerbar_backdrop_color #1C1F26;
+@define-color headerbar_shade_color rgba(0, 0, 0, 0.36);
+
+@define-color sidebar_bg_color #1C1F26;
+@define-color sidebar_fg_color #B9BED5;
+@define-color sidebar_backdrop_color #1C1F26;
+@define-color sidebar_shade_color rgba(0, 0, 0, 0.25);
+
+@define-color secondary_sidebar_bg_color #1C1F26;
+@define-color secondary_sidebar_fg_color #B9BED5;
+@define-color secondary_sidebar_backdrop_color #1C1F26;
+@define-color secondary_sidebar_shade_color rgba(0, 0, 0, 0.25);
+
+@define-color card_bg_color #313343;
+@define-color card_fg_color #B9BED5;
+@define-color card_shade_color rgba(0, 0, 0, 0.36);
+
+@define-color dialog_bg_color #1F212A;
+@define-color dialog_fg_color #B9BED5;
+
+@define-color popover_bg_color #313343;
+@define-color popover_fg_color #B9BED5;
+
+@define-color shade_color rgba(0, 0, 0, 0.36);
+@define-color scrollbar_outline_color rgba(0, 0, 0, 0.5);
+
+/* Scrollbar */
+scrollbar slider {
+  background-color: #555C77;
+  border-radius: 9999px;
+  min-width: 8px;
+  min-height: 8px;
+}
+
+scrollbar slider:hover {
+  background-color: #A571F4;
+}
+
+/* Selection */
+selection, *:selected {
+  background-color: #313343;
+  color: #F5FAFF;
+}

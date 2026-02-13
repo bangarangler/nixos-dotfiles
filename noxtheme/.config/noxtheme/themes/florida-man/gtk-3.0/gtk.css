@@ -1,0 +1,68 @@
+/* noxtheme: Florida-man (GTA VI / Catppuccin Frappe) - GTK 3.0 color overrides */
+
+@define-color theme_bg_color #303446;
+@define-color theme_fg_color #c6d0f5;
+@define-color theme_base_color #232634;
+@define-color theme_text_color #c6d0f5;
+@define-color theme_selected_bg_color #ea999c;
+@define-color theme_selected_fg_color #303446;
+@define-color theme_tooltip_bg_color #414559;
+@define-color theme_tooltip_fg_color #c6d0f5;
+
+@define-color accent_color #ea999c;
+@define-color accent_bg_color #ea999c;
+@define-color accent_fg_color #303446;
+
+@define-color error_color #e78284;
+@define-color error_bg_color #e78284;
+@define-color error_fg_color #303446;
+
+@define-color warning_color #e5c890;
+@define-color warning_bg_color #e5c890;
+@define-color warning_fg_color #303446;
+
+@define-color success_color #a6d189;
+@define-color success_bg_color #a6d189;
+@define-color success_fg_color #303446;
+
+@define-color destructive_color #e78284;
+@define-color destructive_bg_color #e78284;
+@define-color destructive_fg_color #303446;
+
+@define-color headerbar_bg_color #303446;
+@define-color headerbar_fg_color #c6d0f5;
+@define-color headerbar_backdrop_color #232634;
+
+@define-color sidebar_bg_color #232634;
+@define-color sidebar_fg_color #c6d0f5;
+@define-color sidebar_backdrop_color #232634;
+
+@define-color card_bg_color #414559;
+@define-color card_fg_color #c6d0f5;
+
+@define-color view_bg_color #232634;
+@define-color view_fg_color #c6d0f5;
+
+@define-color popover_bg_color #414559;
+@define-color popover_fg_color #c6d0f5;
+
+@define-color dialog_bg_color #303446;
+@define-color dialog_fg_color #c6d0f5;
+
+/* Scrollbar */
+scrollbar slider {
+  background-color: #51576d;
+  border-radius: 9999px;
+  min-width: 8px;
+  min-height: 8px;
+}
+
+scrollbar slider:hover {
+  background-color: #ea999c;
+}
+
+/* Selection */
+selection, *:selected {
+  background-color: #414559;
+  color: #c6d0f5;
+}

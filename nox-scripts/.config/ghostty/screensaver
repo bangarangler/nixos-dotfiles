@@ -1,0 +1,19 @@
+# Ghostty configuration for screensaver mode
+# Used by nox-launch-screensaver to ensure clean fullscreen display
+
+# Remove all padding for edge-to-edge display
+window-padding-x = 0
+window-padding-y = 0
+window-padding-color = extend-always
+
+# Pure black background for screensaver
+background = 000000
+
+# Hide decorations (we're fullscreen anyway)
+window-decoration = false
+
+# Don't show the title bar
+# gtk-titlebar = false
+
+# Disable scrollback (not needed for screensaver)
+scrollback-limit = 0

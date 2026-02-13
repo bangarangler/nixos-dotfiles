@@ -1,0 +1,144 @@
+#!/usr/bin/env bash
+# nox-cmd-screensaver - Core screensaver loop using Terminal Text Effects
+# Displays animated ASCII art in a loop until interrupted
+# Compositor-agnostic - works with Niri, Hyprland, or any Wayland compositor
+
+set -euo pipefail
+
+LOGO="${HOME}/.config/nox/branding/screensaver.txt"
+TOGGLE_FILE="${XDG_RUNTIME_DIR:-/tmp}/nox-screensaver-disabled"
+LOCK_CHECK_CMDS=("swaylock" "hyprlock" "gtklock")
+
+# Effects to cycle through (all work well with ASCII art)
+EFFECTS=(
+    "beams"
+    "binarypath"
+    "blackhole"
+    "bouncyballs"
+    "bubbles"
+    "burn"
+    "colorshift"
+    "crumble"
+    "decrypt"
+    "errorcorrect"
+    "expand"
+    "fireworks"
+    "middleout"
+    "orbittingvolley"
+    "overflow"
+    "pour"
+    "print"
+    "rain"
+    "randomsequence"
+    "rings"
+    "scattered"
+    "slice"
+    "slide"
+    "spotlights"
+    "spray"
+    "swarm"
+    "synthgrid"
+    "unstable"
+    "vhstape"
+    "waves"
+    "wipe"
+)
+
+# Check if screensaver is disabled
+if [[ -f "$TOGGLE_FILE" ]]; then
+    exit 0
+fi
+
+# Verify logo exists
+if [[ ! -f "$LOGO" ]]; then
+    echo "Error: Logo file not found at $LOGO" >&2
+    exit 1
+fi
+
+# Verify tte is available
+if ! command -v tte &>/dev/null; then
+    echo "Error: tte (terminaltexteffects) not found in PATH" >&2
+    exit 1
+fi
+
+# Check if screen is locked
+is_locked() {
+    for cmd in "${LOCK_CHECK_CMDS[@]}"; do
+        if pgrep -x "$cmd" &>/dev/null; then
+            return 0
+        fi
+    done
+    return 1
+}
+
+# Check for any input (keypress)
+has_input() {
+    # Check if there's input waiting (non-blocking)
+    if IFS= read -rs -t 0; then
+        return 0
+    fi
+    return 1
+}
+
+# Trap to handle clean exit
+cleanup() {
+    # Clear screen and show cursor
+    clear
+    tput cnorm 2>/dev/null || true
+    exit 0
+}
+trap cleanup EXIT INT TERM
+
+# Hide cursor
+tput civis 2>/dev/null || true
+
+# Enable reading input without blocking
+if [[ -t 0 ]]; then
+    # Set terminal to raw mode for immediate key detection
+    stty -icanon -echo min 0 time 0 2>/dev/null || true
+fi
+
+# Main loop - cycle through random effects
+while true; do
+    # Exit if locked
+    if is_locked; then
+        exit 0
+    fi
+    
+    # Exit if any key pressed
+    if has_input; then
+        exit 0
+    fi
+    
+    # Pick a random effect
+    effect="${EFFECTS[$((RANDOM % ${#EFFECTS[@]}))]}"
+    
+    # Clear screen and run effect with centering
+    clear
+    
+    # Run tte with the effect centered in terminal
+    # --anchor-canvas c = center canvas in terminal
+    # --anchor-text c = center text in canvas
+    if ! tte --input-file "$LOGO" \
+             --anchor-canvas c \
+             --anchor-text c \
+             --canvas-width 0 \
+             --canvas-height 0 \
+             "$effect" 2>/dev/null; then
+        # If effect fails, try a simple one
+        tte --input-file "$LOGO" \
+            --anchor-canvas c \
+            --anchor-text c \
+            --canvas-width 0 \
+            --canvas-height 0 \
+            "print" 2>/dev/null || true
+    fi
+    
+    # Brief pause between effects - check for input during pause
+    for _ in {1..5}; do
+        if has_input || is_locked; then
+            exit 0
+        fi
+        sleep 0.1
+    done
+done

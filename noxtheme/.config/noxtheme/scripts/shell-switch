@@ -1,0 +1,427 @@
+#!/usr/bin/env bash
+# ==========================================
+# shell-switch - Desktop Shell Switcher
+# ==========================================
+# Cross-platform script for switching between desktop shells
+# Works on NixOS (via rebuild) and Arch/Fedora (via systemd)
+#
+# Supported distros:
+#   - NixOS     (persistent via flake rebuild)
+#   - Arch      (systemd user services)
+#   - Fedora    (systemd user services)
+#   - openSUSE  (systemd user services)
+#
+# Supported shells:
+#   - noctalia  (Niri native, Rust/Iced)
+#   - dms       (Niri/Hyprland/Sway, Quickshell)
+#   - caelestia (Hyprland, Quickshell)
+#
+# Supported compositors:
+#   - niri      (Scrolling tiling)
+#   - hyprland  (Dynamic tiling)
+#
+# Usage:
+#   shell-switch                 - Interactive TUI (fzf)
+#   shell-switch list            - List shells for current compositor
+#   shell-switch set <shell>     - Switch to shell
+#   shell-switch compositor      - Show/switch compositor
+#   shell-switch status          - Show current config
+
+set -euo pipefail
+
+SHELL_SWITCH_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/shell-switch"
+CONFIG_FILE="$SHELL_SWITCH_DIR/config.json"
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+PURPLE='\033[0;35m'
+CYAN='\033[0;36m'
+NC='\033[0m'
+
+log_info() { echo -e "${GREEN}[shell-switch]${NC} $1"; }
+log_warn() { echo -e "${YELLOW}[shell-switch]${NC} $1"; }
+log_error() { echo -e "${RED}[shell-switch]${NC} $1"; }
+
+# Shell compatibility matrix
+declare -A SHELL_COMPOSITORS=(
+    ["noctalia"]="niri"
+    ["dms"]="niri hyprland sway"
+    ["caelestia"]="hyprland"
+)
+
+# Detect current distro
+detect_distro() {
+    if [[ -f /etc/os-release ]]; then
+        source /etc/os-release
+        echo "${ID:-unknown}"
+    elif [[ -f /etc/NIXOS ]]; then
+        echo "nixos"
+    else
+        echo "unknown"
+    fi
+}
+
+# Detect running compositor
+detect_compositor() {
+    if pgrep -x niri &>/dev/null; then
+        echo "niri"
+    elif pgrep -x Hyprland &>/dev/null; then
+        echo "hyprland"
+    elif pgrep -x sway &>/dev/null; then
+        echo "sway"
+    else
+        echo "none"
+    fi
+}
+
+# Initialize config
+init_config() {
+    mkdir -p "$SHELL_SWITCH_DIR"
+    if [[ ! -f "$CONFIG_FILE" ]]; then
+        cat > "$CONFIG_FILE" << 'EOF'
+{
+  "current_shell": "noctalia",
+  "current_compositor": "niri",
+  "nixos_flake_path": "/etc/nixos",
+  "arch_mode": "systemd"
+}
+EOF
+    fi
+}
+
+# Read config value
+config_get() {
+    local key="$1"
+    jq -r ".$key // empty" "$CONFIG_FILE" 2>/dev/null || echo ""
+}
+
+# Write config value
+config_set() {
+    local key="$1"
+    local value="$2"
+    local tmp=$(mktemp)
+    jq ".$key = \"$value\"" "$CONFIG_FILE" > "$tmp" && mv "$tmp" "$CONFIG_FILE"
+}
+
+# List available shells for current compositor
+list_shells() {
+    local compositor="${1:-$(detect_compositor)}"
+    local current_shell=$(config_get "current_shell")
+    
+    echo -e "${PURPLE}Available shells for $compositor:${NC}"
+    
+    for shell in "${!SHELL_COMPOSITORS[@]}"; do
+        local supported="${SHELL_COMPOSITORS[$shell]}"
+        if [[ " $supported " == *" $compositor "* ]]; then
+            if [[ "$shell" == "$current_shell" ]]; then
+                echo -e "  ${GREEN}* $shell${NC} (current)"
+            else
+                echo "    $shell"
+            fi
+        fi
+    done
+}
+
+# Check if shell is compatible with compositor
+is_compatible() {
+    local shell="$1"
+    local compositor="$2"
+    local supported="${SHELL_COMPOSITORS[$shell]:-}"
+    [[ " $supported " == *" $compositor "* ]]
+}
+
+# Stop current shell
+stop_shell() {
+    local shell="$1"
+    log_info "Stopping $shell..."
+    
+    case "$shell" in
+        noctalia)
+            pkill -x noctalia 2>/dev/null || true
+            systemctl --user stop noctalia.service 2>/dev/null || true
+            ;;
+        dms)
+            dms stop 2>/dev/null || true
+            pkill -f "dms" 2>/dev/null || true
+            systemctl --user stop dms.service 2>/dev/null || true
+            ;;
+        caelestia)
+            pkill -f "caelestia" 2>/dev/null || true
+            systemctl --user stop caelestia.service 2>/dev/null || true
+            ;;
+    esac
+    
+    sleep 0.5
+}
+
+# Start shell
+start_shell() {
+    local shell="$1"
+    local distro=$(detect_distro)
+    
+    log_info "Starting $shell..."
+    
+    case "$distro" in
+        nixos)
+            # On NixOS, shells are started via compositor config or systemd
+            start_shell_systemd "$shell"
+            ;;
+        arch|endeavouros|manjaro)
+            start_shell_systemd "$shell"
+            ;;
+        fedora|rhel|centos|rocky|alma)
+            # Fedora/RHEL family uses systemd
+            start_shell_systemd "$shell"
+            ;;
+        opensuse*|suse|sles)
+            # openSUSE family uses systemd
+            start_shell_systemd "$shell"
+            ;;
+        debian|ubuntu|pop|mint|elementary)
+            # Debian family uses systemd
+            start_shell_systemd "$shell"
+            ;;
+        *)
+            start_shell_systemd "$shell"
+            ;;
+    esac
+}
+
+# Start shell via systemd user service
+start_shell_systemd() {
+    local shell="$1"
+    
+    case "$shell" in
+        noctalia)
+            if systemctl --user list-unit-files | grep -q "noctalia.service"; then
+                systemctl --user start noctalia.service
+            else
+                nohup noctalia &>/dev/null &
+            fi
+            ;;
+        dms)
+            if systemctl --user list-unit-files | grep -q "dms.service"; then
+                systemctl --user start dms.service
+            else
+                nohup dms &>/dev/null &
+            fi
+            ;;
+        caelestia)
+            if systemctl --user list-unit-files | grep -q "caelestia.service"; then
+                systemctl --user start caelestia.service
+            else
+                nohup caelestia-shell &>/dev/null &
+            fi
+            ;;
+    esac
+}
+
+# Switch shell (main logic)
+switch_shell() {
+    local new_shell="$1"
+    local compositor=$(detect_compositor)
+    local current_shell=$(config_get "current_shell")
+    local distro=$(detect_distro)
+    
+    # Validate shell exists
+    if [[ -z "${SHELL_COMPOSITORS[$new_shell]:-}" ]]; then
+        log_error "Unknown shell: $new_shell"
+        log_info "Available: ${!SHELL_COMPOSITORS[*]}"
+        exit 1
+    fi
+    
+    # Check compatibility
+    if ! is_compatible "$new_shell" "$compositor"; then
+        log_error "$new_shell is not compatible with $compositor"
+        log_info "$new_shell supports: ${SHELL_COMPOSITORS[$new_shell]}"
+        exit 1
+    fi
+    
+    # Already running?
+    if [[ "$new_shell" == "$current_shell" ]]; then
+        log_warn "Already running $new_shell"
+        exit 0
+    fi
+    
+    echo -e "${CYAN}Switching: $current_shell → $new_shell${NC}"
+    
+    # NixOS: suggest rebuild instead of runtime switch
+    if [[ "$distro" == "nixos" ]]; then
+        log_warn "NixOS detected - for persistent change, update flake.nix"
+        echo ""
+        echo "To switch shells permanently on NixOS:"
+        echo "  1. Edit flake.nix - comment/uncomment shell modules"
+        echo "  2. Run: sudo nixos-rebuild switch"
+        echo ""
+        echo "For runtime switch (temporary):"
+        read -p "Continue with runtime switch? [y/N] " -n 1 -r
+        echo
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            exit 0
+        fi
+    fi
+    
+    # Stop current shell
+    stop_shell "$current_shell"
+    
+    # Start new shell
+    start_shell "$new_shell"
+    
+    # Verify it started
+    sleep 1
+    local running=false
+    case "$new_shell" in
+        noctalia) pgrep -x noctalia &>/dev/null && running=true ;;
+        dms) pgrep -f "dms" &>/dev/null && running=true ;;
+        caelestia) pgrep -f "caelestia" &>/dev/null && running=true ;;
+    esac
+    
+    if $running; then
+        config_set "current_shell" "$new_shell"
+        log_info "Successfully switched to $new_shell"
+    else
+        log_error "Failed to start $new_shell - rolling back"
+        start_shell "$current_shell"
+        exit 1
+    fi
+}
+
+# Interactive TUI using fzf
+show_tui() {
+    if ! command -v fzf &>/dev/null; then
+        log_error "fzf is required for interactive mode"
+        log_info "Install with: nix-shell -p fzf  (or pacman -S fzf)"
+        exit 1
+    fi
+    
+    local compositor=$(detect_compositor)
+    local current_shell=$(config_get "current_shell")
+    
+    # Build list of compatible shells
+    local shells=()
+    for shell in "${!SHELL_COMPOSITORS[@]}"; do
+        if is_compatible "$shell" "$compositor"; then
+            if [[ "$shell" == "$current_shell" ]]; then
+                shells+=("$shell (current)")
+            else
+                shells+=("$shell")
+            fi
+        fi
+    done
+    
+    if [[ ${#shells[@]} -eq 0 ]]; then
+        log_error "No shells available for compositor: $compositor"
+        exit 1
+    fi
+    
+    local selected=$(printf '%s\n' "${shells[@]}" | fzf \
+        --prompt="Select shell for $compositor > " \
+        --header="shell-switch - Desktop Shell Switcher" \
+        --height=40% \
+        --reverse \
+        --border)
+    
+    if [[ -n "$selected" ]]; then
+        # Strip "(current)" suffix if present
+        selected="${selected% (current)}"
+        switch_shell "$selected"
+    fi
+}
+
+# Show status
+show_status() {
+    local compositor=$(detect_compositor)
+    local current_shell=$(config_get "current_shell")
+    local distro=$(detect_distro)
+    
+    echo -e "${PURPLE}shell-switch status${NC}"
+    echo ""
+    echo -e "Distro:     ${GREEN}$distro${NC}"
+    echo -e "Compositor: ${GREEN}$compositor${NC}"
+    echo -e "Shell:      ${GREEN}$current_shell${NC}"
+    echo ""
+    echo -e "${CYAN}Shell compatibility:${NC}"
+    for shell in "${!SHELL_COMPOSITORS[@]}"; do
+        echo "  $shell: ${SHELL_COMPOSITORS[$shell]}"
+    done
+}
+
+# Handle compositor info/switching
+compositor_cmd() {
+    local compositor=$(detect_compositor)
+    
+    echo -e "${PURPLE}Compositor switching${NC}"
+    echo ""
+    echo -e "Current: ${GREEN}$compositor${NC}"
+    echo ""
+    echo "Compositor switching happens at login (greetd/SDDM/GDM)."
+    echo "Each compositor is a separate session."
+    echo ""
+    echo "On NixOS, enable compositors in flake.nix:"
+    echo "  niri.nixosModules.niri        # Uncomment for Niri"
+    echo "  hyprland.nixosModules.default # Uncomment for Hyprland"
+    echo ""
+    echo "Then run: sudo nixos-rebuild switch"
+    echo "And select the compositor at login."
+}
+
+# Main
+init_config
+
+case "${1:-}" in
+    "")
+        show_tui
+        ;;
+    list|ls)
+        list_shells "${2:-}"
+        ;;
+    set|switch)
+        if [[ -z "${2:-}" ]]; then
+            log_error "Usage: shell-switch set <shell>"
+            exit 1
+        fi
+        switch_shell "$2"
+        ;;
+    compositor|comp)
+        compositor_cmd
+        ;;
+    status|info)
+        show_status
+        ;;
+    help|--help|-h)
+        echo "shell-switch - Desktop Shell Switcher"
+        echo ""
+        echo "Usage:"
+        echo "  shell-switch              Interactive TUI (requires fzf)"
+        echo "  shell-switch list         List shells for current compositor"
+        echo "  shell-switch set <shell>  Switch to a shell"
+        echo "  shell-switch compositor   Info about compositor switching"
+        echo "  shell-switch status       Show current configuration"
+        echo ""
+        echo "Supported shells:"
+        echo "  noctalia   - Niri native shell (Rust/Iced)"
+        echo "  dms        - Dank Material Shell (Niri/Hyprland/Sway)"
+        echo "  caelestia  - Caelestia shell (Hyprland)"
+        echo ""
+        echo "Supported distros:"
+        echo "  NixOS      - Persistent via flake rebuild"
+        echo "  Arch       - Systemd user services"
+        echo "  Fedora     - Systemd user services"
+        echo "  openSUSE   - Systemd user services"
+        echo "  Debian     - Systemd user services"
+        echo ""
+        echo "On NixOS:"
+        echo "  For persistent changes, edit flake.nix and run:"
+        echo "  sudo nixos-rebuild switch"
+        echo ""
+        echo "On Arch/Fedora/etc:"
+        echo "  Shells are managed via systemd user services"
+        ;;
+    *)
+        log_error "Unknown command: $1"
+        echo "Run 'shell-switch help' for usage"
+        exit 1
+        ;;
+esac

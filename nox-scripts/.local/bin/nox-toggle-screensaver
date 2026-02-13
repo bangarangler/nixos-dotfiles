@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+# nox-toggle-screensaver - Enable/disable the screensaver system
+# Usage: nox-toggle-screensaver [on|off|status]
+#        nox-toggle-screensaver (no args = toggle)
+
+set -euo pipefail
+
+TOGGLE_FILE="${XDG_RUNTIME_DIR:-/tmp}/nox-screensaver-disabled"
+
+usage() {
+    echo "Usage: nox-toggle-screensaver [on|off|status]"
+    echo "  on     - Enable screensaver"
+    echo "  off    - Disable screensaver"
+    echo "  status - Show current state"
+    echo "  (none) - Toggle current state"
+}
+
+enable_screensaver() {
+    rm -f "$TOGGLE_FILE"
+    echo "Screensaver enabled"
+}
+
+disable_screensaver() {
+    touch "$TOGGLE_FILE"
+    echo "Screensaver disabled"
+    
+    # Kill any running screensaver
+    pkill -f "nox-cmd-screensaver" 2>/dev/null || true
+}
+
+show_status() {
+    if [[ -f "$TOGGLE_FILE" ]]; then
+        echo "Screensaver: disabled"
+        return 1
+    else
+        echo "Screensaver: enabled"
+        return 0
+    fi
+}
+
+toggle() {
+    if [[ -f "$TOGGLE_FILE" ]]; then
+        enable_screensaver
+    else
+        disable_screensaver
+    fi
+}
+
+case "${1:-toggle}" in
+    on|enable)
+        enable_screensaver
+        ;;
+    off|disable)
+        disable_screensaver
+        ;;
+    status)
+        show_status
+        ;;
+    toggle)
+        toggle
+        ;;
+    -h|--help|help)
+        usage
+        ;;
+    *)
+        echo "Unknown option: $1" >&2
+        usage >&2
+        exit 1
+        ;;
+esac
