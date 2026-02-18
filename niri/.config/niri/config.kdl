@@ -154,6 +154,12 @@ window-rule {
     open-floating true
 }
 
+window-rule {
+  match app-id="HEY"
+  open-floating true
+  // open-on-workspace "4"
+}
+
 // ------------------------------
 // Keybinds
 // ------------------------------

@@ -488,7 +488,9 @@ in
     ghostty  # Terminal
     insomnia # API Client
     postman  # API Client
-    notion-app-enhanced # Notes
+    # notion-app DARWIN ONLY?
+    hey-mail
+    obsidian
     
     # ==========================================
     # AI CODING ASSISTANTS (TUI-focused)
