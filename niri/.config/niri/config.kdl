@@ -93,7 +93,7 @@ layout {
 // ------------------------------
 cursor {
     // Cursor theme (install via Nix or use default)
-    // xcursor-theme "Adwaita"
+    xcursor-theme "Adwaita"
     xcursor-size 24
 }
 
