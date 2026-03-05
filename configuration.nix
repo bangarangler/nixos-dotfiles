@@ -28,6 +28,7 @@ in
   
   # Bootloader
   boot.loader.systemd-boot.enable = true;
+  boot.loader.systemd-boot.configurationLimit = 10;  # Keep only last 10 generations in boot menu
   boot.loader.efi.canTouchEfiVariables = true;
 
   # Hibernation (Resume from Swap)
@@ -735,11 +736,14 @@ EOF
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
   nix.settings.auto-optimise-store = true;  # Dedup identical files in store
   
-  # Garbage Collection: Clean old generations weekly
+  # Garbage Collection: Keep last 10 generations, delete rest weekly
+  # This is count-based (predictable) rather than time-based (30d).
+  # Combined with boot.loader.systemd-boot.configurationLimit = 10,
+  # this ensures both boot menu and store stay trim.
   nix.gc = {
     automatic = true;
     dates = "weekly";
-    options = "--delete-older-than 30d";
+    options = "--delete-generations +10";
   };
 
   # ==========================================
