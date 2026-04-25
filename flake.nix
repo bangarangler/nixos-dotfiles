@@ -8,10 +8,6 @@
     # Framework Hardware Support (Critical for AI 300 Series)
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
 
-    # Niri Compositor (NixOS Flake by sodiboo - provides nixosModules.niri)
-    #niri.url = "github:sodiboo/niri-flake";
-    #niri.inputs.nixpkgs.follows = "nixpkgs";
-
     # Hyprland Compositor (Alternative to Niri)
     #hyprland.url = "github:hyprwm/Hyprland";
     #hyprland.inputs.nixpkgs.follows = "nixpkgs";
@@ -39,10 +35,6 @@
     # ==========================================
     # AI CODING ASSISTANTS
     # ==========================================
-    # OpenCode - Multi-provider TUI (OpenAI, Anthropic, Ollama, etc.)
-    # Using nixpkgs version instead - flake had broken anthropic-auth plugin
-    # opencode.url = "github:aodhanhayter/opencode-flake";
-    # opencode.inputs.nixpkgs.follows = "nixpkgs";
     opencode.url = "github:anomalyco/opencode";
     opencode.inputs.nixpkgs.follows = "nixpkgs";
 
@@ -78,9 +70,6 @@
         # - NO runtime overhead - only one compositor runs at a time
         # - You can switch compositors instantly without rebuilding
         # - If you truly want minimal, comment out the one you don't use
-        
-        # Niri - Scrolling tiling Wayland compositor (~100MB)
-        #niri.nixosModules.niri
         
         # Hyprland - Dynamic tiling Wayland compositor (~100MB)
         # Comment this line if you only want Niri:

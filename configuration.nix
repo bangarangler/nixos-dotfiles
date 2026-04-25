@@ -115,16 +115,15 @@ in
   # Defend: This forces ACPI S5 (shutdown) after writing to swap, ensuring zero battery drain.
   # Best practice for Framework laptops to prevent "hot bag" issues.
   # HibernateDelaySec: After 1hr of suspend, auto-hibernate to save battery
-  # REMOVE ONCE FIXED - CHANGE BACK TO 1Hr - below is notes on what happened - not happening all the time.
   # HibernateDelaySec=1h -   USB controller c1:00.4 (AMD 1022:151e) failed to resume:
   # xhci_hcd 0000:c1:00.4: WARN: xHC restore state timeout
   # xhci_hcd 0000:c1:00.4: HC died; cleaning up
   # 6. This left a hub_event workqueue stuck, preventing hibernate
   # 7. System entered suspend→fail→retry loop every 40 seconds for hours
-  systemd.sleep.extraConfig = ''
-    HibernateMode=shutdown
-    HibernateDelaySec=90m
-  '';
+  systemd.sleep.settings.Sleep = {
+    HibernateMode = "shutdown";
+    HibernateDelaySec = "90m";
+  };
   
   # Lid close → suspend-then-hibernate (suspend now, hibernate after 1hr)
   services.logind.settings.Login = {
@@ -229,7 +228,6 @@ in
   
   # === SHELLS ===
   # NOCTALIA (Shell/Bar for Niri - Rust/Iced based)
-  services.noctalia-shell.enable = true;
 
   # DMS and Caelestia are enabled via flake modules when uncommented
 
@@ -378,6 +376,7 @@ in
   environment.systemPackages = with pkgs; [
     # Window Managers
     niri
+    inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default
     
     # Shells
     bash
@@ -420,7 +419,7 @@ in
     cava
     lm_sensors
     impala # WiFi TUI
-    inputs.bluetui.packages.${pkgs.system}.default # Bluetooth TUI from Flake
+    inputs.bluetui.packages.${pkgs.stdenv.hostPlatform.system}.default # Bluetooth TUI from Flake
     # Note: lsp-plugins and bankstown-lv2 are auto-installed by audioEnhancement module
     
     # ==========================================
@@ -478,7 +477,7 @@ in
     firefox-devedition
     google-chrome
     vivaldi
-    inputs.zen-browser.packages.${pkgs.system}.default # Zen Browser from Flake
+    inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.default # Zen Browser from Flake
     
     # Vesktop - Discord client with Vencord built-in
     # Standalone Electron build, no native Discord modules, better Wayland support
@@ -505,9 +504,8 @@ in
     # Or in tool-specific config: ~/.config/<tool>/
     
     # ENABLED: Multi-provider TUI for AI coding
-    # nixpkgs version (1.1.53) is newer than flake (1.0.203) and has working plugins
-    # opencode
-    inputs.opencode.packages.${pkgs.system}.default  # flake version - broken anthropic-auth plugin
+    # Use the nixpkgs package; upstream docs recommend nixpkgs for Nix/NixOS.
+    pkgs.opencode
     
     # ENABLED: Claude-focused TUI (numtide/nix-ai-tools)
     # inputs.nix-ai-tools.packages.${pkgs.system}.crush

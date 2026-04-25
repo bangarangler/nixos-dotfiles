@@ -84,7 +84,8 @@ layout {
 
     // Struts push windows away from screen edges
     struts {
-        top -30
+        top 0
+        // top -30
     }
 }
 
