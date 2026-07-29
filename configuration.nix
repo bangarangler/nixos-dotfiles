@@ -247,11 +247,11 @@ in
       pgrep = "${pkgs.procps}/bin/pgrep";
       pkill = "${pkgs.procps}/bin/pkill";
       systemctl = "${pkgs.systemd}/bin/systemctl";
-      noctalia = "/run/current-system/sw/bin/noctalia-shell";
+      noctalia = "/run/current-system/sw/bin/noctalia";
       screensaver = "/home/jon/.local/bin/nox-launch-screensaver";
     in ''
       timeout 90 '(${pgrep} -x hyprlock || ${pgrep} -x swaylock) || ${screensaver}'
-      timeout 150 '${pkill} -f "nox-cmd-[s]creensaver" 2>/dev/null; ${pkill} -f "[g]hostty.*screensaver" 2>/dev/null; ${noctalia} ipc call lockScreen lock'
+      timeout 150 '${pkill} -f "nox-cmd-[s]creensaver" 2>/dev/null; ${pkill} -f "[g]hostty.*screensaver" 2>/dev/null; ${noctalia} msg session lock'
       timeout 330 '${systemctl} suspend-then-hibernate'
     '';
   
@@ -297,7 +297,7 @@ in
     serviceConfig = {
       Type = "oneshot";
       User = username;
-      ExecStart = "/run/current-system/sw/bin/noctalia-shell ipc call lockScreen lock";
+      ExecStart = "/run/current-system/sw/bin/noctalia msg session lock";
     };
   };
   

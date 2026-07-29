@@ -1,0 +1,147 @@
+[shell]
+font_family = "Inconsolata LGC Nerd Font"
+ui_scale = 1.0
+corner_radius_scale = 1.0
+telemetry_enabled = false
+show_location = true
+
+[shell.animation]
+enabled = true
+speed = 1.0
+
+[shell.shadow]
+direction = "down_right"
+alpha = 0.55
+
+[theme]
+mode = "dark"
+source = "builtin"
+builtin = "Dracula"
+
+[theme.templates]
+builtin_ids = ["alacritty", "btop", "cava", "gtk3", "gtk4", "ghostty", "hyprland", "niri", "qt", "scroll", "starship", "sway"]
+community_ids = ["pywalfox", "zen-browser", "neovim", "obsidian", "vscode", "fuzzel", "rofi", "vicinae", "walker", "discord", "telegram", "yazi", "hyprtoolkit"]
+
+[wallpaper]
+enabled = true
+directory = "/home/jon/nixos-dotfiles/wallpapers"
+fill_mode = "crop"
+fill_color = "#000000"
+transition = ["fade", "disc", "stripes", "wipe", "honeycomb"]
+transition_duration = 1500
+edge_smoothness = 0.05
+transition_on_startup = false
+
+[wallpaper.default]
+path = "/home/jon/nixos-dotfiles/wallpapers/wallpaperflare.com_wallpaper(6).jpg"
+
+[lockscreen]
+enabled = true
+blurred_desktop = false
+blur_intensity = 0.0
+tint_intensity = 0.0
+
+[weather]
+enabled = true
+refresh_minutes = 30
+unit = "celsius"
+effects = true
+
+[location]
+auto_locate = false
+address = "New York"
+
+[nightlight]
+enabled = false
+force = false
+temperature_day = 6500
+temperature_night = 4000
+
+[notification]
+enable_daemon = true
+
+[shell.panel]
+control_center_placement = "floating"
+
+[bar.main]
+position = "top"
+thickness = 34
+background_opacity = 0.74
+radius = 12
+margin_ends = 4
+margin_edge = 4
+padding = 2
+widget_spacing = 6
+shadow = true
+auto_hide = false
+reserve_space = true
+capsule = true
+start = ["nixos", "launcher", "clock", "sysmon", "active_window", "media"]
+center = ["workspaces"]
+end = ["tray", "notifications", "battery", "network", "volume", "brightness", "control-center"]
+
+[widget.nixos]
+type = "launcher"
+glyph = "snowflake"
+color = "tertiary"
+
+[widget.launcher]
+glyph = "rocket"
+color = "secondary"
+
+[widget.clock]
+format = "{:%H:%M %a, %b %d}"
+tooltip_format = "{:%H:%M %a, %b %d}"
+color = "primary"
+
+[widget.sysmon]
+type = "sysmon"
+stat = "cpu_temp"
+display = "text"
+show_label = true
+
+[widget.media]
+album_art_only = false
+hide_when_no_media = true
+max_length = 145
+title_scroll = "on_hover"
+
+[widget.notifications]
+color = "tertiary"
+
+[widget.tray]
+drawer = true
+
+[widget.active_window]
+max_length = 145
+title_scroll = "on_hover"
+display = "icon_and_text"
+
+[widget.volume]
+show_label = true
+color = "secondary"
+
+[widget.brightness]
+show_label = true
+color = "primary"
+
+[widget.battery]
+display_mode = "graphic"
+show_label = false
+
+[widget.network]
+show_label = true
+color = "secondary"
+
+[widget.control-center]
+glyph = "snowflake"
+color = "tertiary"
+
+[dock]
+enabled = true
+position = "bottom"
+background_opacity = 1.0
+auto_hide = true
+launcher_position = "none"
+active_monitor_only = true
+reserve_space = false

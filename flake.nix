@@ -12,8 +12,8 @@
     #hyprland.url = "github:hyprwm/Hyprland";
     #hyprland.inputs.nixpkgs.follows = "nixpkgs";
 
-    # Noctalia Shell (Official Flake - Niri native shell)
-    noctalia.url = "github:noctalia-dev/noctalia-shell";
+    # Noctalia (v5) flake package; upstream no longer ships a NixOS module.
+    noctalia.url = "github:noctalia-dev/noctalia";
     noctalia.inputs.nixpkgs.follows = "nixpkgs";
 
     # Dank Material Shell (Quickshell-based - supports Niri, Hyprland, Sway, etc.)
@@ -76,8 +76,8 @@
         #hyprland.nixosModules.default
         
         # === SHELLS ===
-        # Noctalia - Native Niri shell (Rust/Iced) - ENABLED
-        noctalia.nixosModules.default
+        # Noctalia is installed from `configuration.nix`.
+        # Upstream no longer exports `nixosModules`.
         # DMS - Dank Material Shell (Niri, Hyprland, Sway, labwc) - uncomment to enable
         # dms.nixosModules.dank-material-shell
         # Caelestia - Hyprland-focused shell (Quickshell) - uncomment to enable

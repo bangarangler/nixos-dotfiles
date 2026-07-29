@@ -124,7 +124,7 @@ environment {
 // Startup
 // ------------------------------
 // Noctalia Shell (bar, launcher, notifications)
-spawn-at-startup "noctalia-shell"
+spawn-at-startup "noctalia"
 
 // D-Bus environment sync (critical for portals, screen sharing)
 spawn-at-startup "dbus-update-activation-environment" "--systemd" "WAYLAND_DISPLAY" "XDG_CURRENT_DESKTOP"
@@ -182,11 +182,11 @@ binds {
     
     // === Applications ===
     Mod+Return hotkey-overlay-title="Open Terminal: Ghostty" { spawn "ghostty"; }
-    Mod+Space hotkey-overlay-title="App Launcher" { spawn "noctalia-shell" "ipc" "call" "launcher" "toggle"; }
+    Mod+Space hotkey-overlay-title="App Launcher" { spawn "noctalia" "msg" "panel-toggle" "launcher"; }
     Mod+E hotkey-overlay-title="File Manager: Nautilus" { spawn "nautilus"; }
     
     // === Screen Lock ===
-    Mod+Ctrl+L hotkey-overlay-title="Lock Screen" { spawn "noctalia-shell" "ipc" "call" "lockScreen" "lock"; }
+    Mod+Ctrl+L hotkey-overlay-title="Lock Screen" { spawn "noctalia" "msg" "session" "lock"; }
     
     // === Window Management ===
     Mod+O hotkey-overlay-title="Overview" { toggle-overview; }
@@ -312,4 +312,3 @@ hotkey-overlay {
 }
 
 include "./noctalia.kdl"
-
