@@ -14,8 +14,8 @@ marker_marked = { fg = "#ff5555", bg = "#ff5555" }
 marker_selected = { fg = "#8be9fd", bg = "#8be9fd" }
 
 # Count
-count_copied = { fg = "#023e4c", bg = "#00b0d5" }
-count_cut = { fg = "#023e4c", bg = "#00b0d5" }
+count_copied = { fg = "#1a3d45", bg = "#00b0d5" }
+count_cut = { fg = "#1a3d45", bg = "#00b0d5" }
 count_selected = { fg = "#282a36", bg = "#8be9fd" }
 
 # Border

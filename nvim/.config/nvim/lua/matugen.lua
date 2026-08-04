@@ -5,7 +5,7 @@ function M.setup()
     base00 = '#282a36',
     base01 = '#44475a',
     base02 = '#4d5066',
-    base03 = '#6d7290',
+    base03 = '#6d728b',
     base04 = '#d6d8e0',
     base05 = '#f8f8f2',
     base06 = '#f8f8f2',
@@ -25,9 +25,9 @@ function M.setup()
   end
 
   hi('TelescopeNormal',         { fg = '#f8f8f2',          bg = '#282a36' })
-  hi('TelescopeBorder',         { fg = '#6d7290',             bg = '#282a36' })
+  hi('TelescopeBorder',         { fg = '#6d728b',             bg = '#282a36' })
   hi('TelescopePromptNormal',   { fg = '#f8f8f2',          bg = '#282a36' })
-  hi('TelescopePromptBorder',   { fg = '#6d7290',             bg = '#282a36' })
+  hi('TelescopePromptBorder',   { fg = '#6d728b',             bg = '#282a36' })
   hi('TelescopePromptPrefix',   { fg = '#bd93f9',             bg = '#282a36' })
   hi('TelescopePromptCounter',  { fg = '#d6d8e0',  bg = '#282a36' })
   hi('TelescopePromptTitle',    { fg = '#282a36',             bg = '#bd93f9' })
