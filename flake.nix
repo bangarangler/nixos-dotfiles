@@ -38,6 +38,10 @@
     opencode.url = "github:anomalyco/opencode";
     opencode.inputs.nixpkgs.follows = "nixpkgs";
 
+    # Herdr - terminal workspace for AI coding agents
+    herdr.url = "github:herdrdev/herdr/v0.8.0";
+    herdr.inputs.nixpkgs.follows = "nixpkgs";
+
     # Crush - Claude-focused TUI from numtide's nix-ai-tools
     # nix-ai-tools.url = "github:numtide/nix-ai-tools";
     # nix-ai-tools.inputs.nixpkgs.follows = "nixpkgs";
@@ -52,7 +56,7 @@
     # codex.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = { self, nixpkgs, nixos-hardware, noctalia, opencode, nur, bluetui, zen-browser, ... }@inputs: {
+  outputs = { self, nixpkgs, nixos-hardware, noctalia, opencode, nur, bluetui, zen-browser, herdr, ... }@inputs: {
     nixosConfigurations."achilles" = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       

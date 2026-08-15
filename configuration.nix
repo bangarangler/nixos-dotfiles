@@ -448,7 +448,8 @@ in
     # Screenshot / Screen recording
     grim           # Screenshot tool
     slurp          # Region selector
-    wf-recorder    # Screen recorder
+    # wf-recorder    # Screen recorder
+   (wf-recorder.override { ffmpeg = ffmpeg_8; }) # unpin when unstable pins ffmpeg_8
     
     # Wallpaper
     swaybg         # Simple wallpaper setter (works with Niri too)
@@ -506,6 +507,7 @@ in
     # ENABLED: Multi-provider TUI for AI coding
     # Use the nixpkgs package; upstream docs recommend nixpkgs for Nix/NixOS.
     pkgs.opencode
+    inputs.herdr.packages.${pkgs.stdenv.hostPlatform.system}.default # Herdr from Flake
     
     # ENABLED: Claude-focused TUI (numtide/nix-ai-tools)
     # inputs.nix-ai-tools.packages.${pkgs.system}.crush
