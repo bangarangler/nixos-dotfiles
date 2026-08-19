@@ -448,8 +448,7 @@ in
     # Screenshot / Screen recording
     grim           # Screenshot tool
     slurp          # Region selector
-    # wf-recorder    # Screen recorder
-   (wf-recorder.override { ffmpeg = ffmpeg_8; }) # unpin when unstable pins ffmpeg_8
+    wf-recorder    # Screen recorder
     
     # Wallpaper
     swaybg         # Simple wallpaper setter (works with Niri too)
