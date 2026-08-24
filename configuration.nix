@@ -300,6 +300,19 @@ in
       ExecStart = "/run/current-system/sw/bin/noctalia msg session lock";
     };
   };
+
+  # Fingerprint USB sits on xhci 0000:c1:00.4. That host often dies on s2idle
+  # resume (xHC restore timeout). If fprintd is still in a USB ioctl, freeze
+  # fails and logind/swayidle retry sleep every ~40s while fully awake.
+  systemd.services.fprintd-stop-before-sleep = {
+    description = "Stop fprintd before sleep";
+    wantedBy = [ "sleep.target" ];
+    before = [ "sleep.target" ];
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = "${pkgs.systemd}/bin/systemctl stop fprintd.service";
+    };
+  };
   
   # EASYEFFECTS SERVICE (Optional - disabled when using built-in audio enhancement)
   # The nixos-hardware module's audioEnhancement option is preferred.

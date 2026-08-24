@@ -1,6 +1,8 @@
+[accessibility]
+ui_scale = 1.0
+
 [shell]
 font_family = "Inconsolata LGC Nerd Font"
-ui_scale = 1.0
 corner_radius_scale = 1.0
 telemetry_enabled = false
 show_location = true
@@ -97,8 +99,8 @@ color = "primary"
 [widget.sysmon]
 type = "sysmon"
 stat = "cpu_temp"
-display = "text"
-show_label = true
+visualization = "gauge"
+show_value = true
 
 [widget.media]
 album_art_only = false
