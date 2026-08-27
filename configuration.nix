@@ -48,6 +48,10 @@ in
     # Ref: https://community.frame.work/t/laptop-13-ryzen-hx370-hibernation-problems/75092
     "rtc_cmos.use_acpi_alarm=1"
 
+    # TEMP: keep kernel console up during sleep/hibernate so a hang after
+    # "hibernation entry" actually hits the journal. Remove when resolved.
+    "no_console_suspend"
+
     # Optional: Enable IOMMU Passthrough (better virtualization performance)
     "iommu=pt" 
 
